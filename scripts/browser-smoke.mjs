@@ -182,9 +182,58 @@ try {
   await new Promise((resolve) => setTimeout(resolve, 250));
   await waitForParent(matched.id, ids.inbox);
 
+  const recoveryBookmark = await worker.evaluate(async ({ inboxId, targetId }) => {
+    const bookmark = await chrome.bookmarks.create({
+      parentId: targetId,
+      title: "Restart recovery bookmark",
+      url: "https://recovery.example.com/article",
+    });
+    const stored = await chrome.storage.local.get("attempts");
+    await chrome.storage.local.set({
+      attempts: {
+        ...(stored.attempts ?? {}),
+        [bookmark.id]: {
+          bookmarkId: bookmark.id,
+          observedParentId: inboxId,
+          observedUrl: bookmark.url,
+          observedTitle: bookmark.title,
+          observedAt: Date.now(),
+          state: "moving",
+          attemptVersion: 1,
+          targetFolderId: targetId,
+          plannedOutcome: "moved",
+          reasonCode: "rule_match",
+          ruleId: "browser-smoke-rule",
+          confidence: 95,
+        },
+      },
+    });
+    return bookmark;
+  }, { inboxId: ids.inbox, targetId: ids.development });
+
+  await worker.close();
+  let recovered = false;
+  for (let attempt = 0; attempt < 60; attempt += 1) {
+    const response = await page.evaluate(async () => {
+      try {
+        return await chrome.runtime.sendMessage({ type: "GET_POPUP_STATE" });
+      } catch {
+        return undefined;
+      }
+    });
+    recovered =
+      response?.state?.activity?.some(
+        (entry) =>
+          entry.bookmarkId === recoveryBookmark.id && entry.outcome === "moved",
+      ) === true;
+    if (recovered) break;
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  assert.equal(recovered, true, "The restarted worker did not reconcile persisted work.");
+
   assert.deepEqual(pageErrors, [], `Extension page errors: ${pageErrors.join(" | ")}`);
 
-  await worker.evaluate(async (qaRootId) => {
+  await page.evaluate(async (qaRootId) => {
     await chrome.bookmarks.removeTree(qaRootId);
   }, ids.qaRoot);
 

@@ -49,6 +49,8 @@ Current capabilities:
 - [Local testing](docs/LOCAL_TESTING.md) — build, install, and manual test steps.
 - [Privacy and permissions](docs/PRIVACY.md) — data handling and permission
   rationale.
+- [Verification record](docs/VERIFICATION.md) — checks and browser versions
+  exercised for the current MVP.
 - [Agent guidance](AGENTS.md) — repository rules for coding agents and
   contributors.
 
