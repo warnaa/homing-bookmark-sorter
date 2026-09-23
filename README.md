@@ -14,12 +14,20 @@ bookmark tree.
 
 ## Project status
 
-The repository is currently in the requirements and architecture phase. There
-is no extension implementation yet.
+The local-install MVP is implemented as a Manifest V3 extension and verified in
+Google Chrome and Microsoft Edge. It uses deterministic URL/title rules and
+does not request access to page content.
 
-The initial target is a Manifest V3 extension for Chromium browsers (Chrome and
-Edge). The design should avoid unnecessary Chromium-specific assumptions so a
-Firefox port remains practical.
+Current capabilities:
+
+- Watch exactly one selected Inbox folder.
+- Route matching bookmarks to any writable bookmark folder.
+- Send uncertain or failed attempts to a selected Needs review folder.
+- Match exact domains, domains with subdomains, wildcard URLs, and title text.
+- Preserve deliberate placement outside the Inbox and later manual moves.
+- Recover unfinished work after service-worker suspension.
+- Explain recent decisions and offer a safe 10-minute Undo.
+- Keep all extension data local and all UI text localization-ready.
 
 ## Product principles
 
@@ -35,9 +43,12 @@ Firefox port remains practical.
 - [Requirements](REQUIREMENTS.md) — normative product behavior and acceptance
   criteria.
 - [Implementation plan](PLAN.md) — phased delivery and verification strategy.
-- [Architecture](docs/ARCHITECTURE.md) — proposed components, state, and event
+- [Architecture](docs/ARCHITECTURE.md) — implemented components, state, and event
   flows.
 - [Decision log](docs/DECISIONS.md) — durable product and engineering decisions.
+- [Local testing](docs/LOCAL_TESTING.md) — build, install, and manual test steps.
+- [Privacy and permissions](docs/PRIVACY.md) — data handling and permission
+  rationale.
 - [Agent guidance](AGENTS.md) — repository rules for coding agents and
   contributors.
 
@@ -51,9 +62,23 @@ availability. Name availability must be checked before publication.
 
 ## Development
 
-Tooling and source layout will be introduced in Phase 1 of `PLAN.md`. Until
-then, changes should improve the requirements, decisions, or implementation
-plan without pretending that runtime behavior has been verified.
+Requirements: Node.js 22 or newer and npm.
+
+```powershell
+npm install
+npm run check
+```
+
+`npm run check` type-checks, lints, runs the unit/integration suite, builds
+`dist/`, and validates the packaged files and permissions. To exercise the
+built extension in an isolated temporary Chrome profile:
+
+```powershell
+npm run test:browser
+```
+
+See [Local testing](docs/LOCAL_TESTING.md) for installation in Chrome, Edge, or
+Brave and a complete manual acceptance walkthrough.
 
 ## License
 

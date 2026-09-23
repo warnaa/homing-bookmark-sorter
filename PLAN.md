@@ -1,6 +1,7 @@
 # Nestmark implementation plan
 
-Status: Proposed  
+Status: Local-install MVP completed
+
 Source of truth for behavior: `REQUIREMENTS.md`
 
 ## Phase 0 — Confirm the product contract
@@ -129,3 +130,16 @@ Verification:
 
 Each post-MVP feature requires a separate decision entry covering permissions,
 privacy, failure behavior, and migration before implementation.
+
+## Completion record
+
+Completed on 2026-09-24 for the local-install MVP:
+
+- Phases 0 through 5 are implemented.
+- Phase 6 is complete for local packaging: automated package inspection,
+  Chrome and Edge browser smoke tests, icons, permission documentation, and a
+  local testing guide are present.
+- Chrome Web Store publication assets and submission remain intentionally out
+  of scope because no store publication was requested.
+- Content extraction, AI classification, and Firefox support remain post-MVP
+  candidates.

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <path
+    fill="#315b42"
+    stroke="#8eae98"
+    stroke-width="3"
+    d="M38 7h52c18 0 31 13 31 31v52c0 18-13 31-31 31H28c-12 0-21-9-21-21V38C7 20 20 7 38 7Z"
+  />
+  <text
+    x="64"
+    y="84"
+    fill="#fffdf7"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="66"
+    font-style="italic"
+    text-anchor="middle"
+  >N</text>
+</svg>

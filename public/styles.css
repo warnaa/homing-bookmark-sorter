@@ -1,0 +1,408 @@
+:root {
+  color-scheme: light;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  color: #1c2925;
+  background: #f2f5f0;
+  font-synthesis: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.page {
+  min-width: 720px;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 90% 0%, rgb(217 232 218 / 70%), transparent 34rem),
+    #f2f5f0;
+}
+
+.layout {
+  width: min(100% - 40px, 920px);
+  margin: 0 auto;
+  padding: 48px 0 80px;
+}
+
+.hero,
+.popup-header,
+.section-heading,
+.form-actions,
+.popup-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.hero {
+  margin-bottom: 28px;
+}
+
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  margin-bottom: 10px;
+  font-size: clamp(2rem, 5vw, 3.35rem);
+  letter-spacing: -0.045em;
+  line-height: 1;
+}
+
+h2 {
+  margin-bottom: 8px;
+  font-size: 1.05rem;
+}
+
+.hero__copy,
+.section-heading p,
+.field small,
+.empty-state {
+  color: #61706a;
+}
+
+.hero__copy {
+  max-width: 640px;
+  margin-bottom: 0;
+  font-size: 1.05rem;
+  line-height: 1.55;
+}
+
+.eyebrow {
+  margin-bottom: 9px;
+  color: #50795c;
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.nestmark-mark {
+  display: grid;
+  flex: 0 0 auto;
+  width: 76px;
+  height: 76px;
+  place-items: center;
+  border: 1px solid #94ad98;
+  border-radius: 24px 24px 24px 7px;
+  color: #fff;
+  background: #315b42;
+  box-shadow: 0 16px 36px rgb(49 91 66 / 20%);
+  font-family: Georgia, serif;
+  font-size: 2.25rem;
+  font-style: italic;
+}
+
+.nestmark-mark--small {
+  width: 45px;
+  height: 45px;
+  border-radius: 15px 15px 15px 5px;
+  font-size: 1.35rem;
+}
+
+.card {
+  margin-bottom: 18px;
+  padding: 25px;
+  border: 1px solid #dce3da;
+  border-radius: 18px;
+  background: rgb(255 255 255 / 92%);
+  box-shadow: 0 8px 30px rgb(43 63 51 / 6%);
+}
+
+.section-heading {
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.section-heading--compact {
+  margin-bottom: 10px;
+}
+
+.section-heading p {
+  max-width: 620px;
+  margin-bottom: 0;
+  line-height: 1.5;
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+  color: #283b34;
+  font-weight: 700;
+}
+
+.field--short {
+  max-width: 360px;
+}
+
+.field small {
+  font-size: 0.78rem;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+input,
+select {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid #bdc9bf;
+  border-radius: 10px;
+  color: #1c2925;
+  background: #fff;
+  padding: 9px 11px;
+}
+
+input:focus-visible,
+select:focus-visible,
+button:focus-visible {
+  outline: 3px solid rgb(90 137 103 / 28%);
+  outline-offset: 2px;
+}
+
+.input-with-suffix {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.input-with-suffix input {
+  max-width: 130px;
+}
+
+.check-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 18px;
+  color: #3a4b44;
+}
+
+.check-row input {
+  width: 18px;
+  min-height: 18px;
+  margin-top: 2px;
+}
+
+.button {
+  min-height: 40px;
+  border-radius: 10px;
+  padding: 9px 15px;
+  border: 1px solid transparent;
+  font-weight: 750;
+}
+
+.button--primary {
+  color: #fff;
+  background: #315b42;
+}
+
+.button--primary:hover {
+  background: #244a34;
+}
+
+.button--secondary {
+  border-color: #b9c8bc;
+  color: #315b42;
+  background: #fff;
+}
+
+.button--full {
+  width: 100%;
+}
+
+.text-button {
+  border: 0;
+  padding: 3px;
+  color: #50795c;
+  background: transparent;
+  font-size: 0.78rem;
+  font-weight: 750;
+}
+
+.form-actions {
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+.notice {
+  margin: 16px 0;
+  border: 1px solid #aac1ae;
+  border-radius: 12px;
+  padding: 13px 15px;
+  color: #264d35;
+  background: #edf7ef;
+}
+
+.notice--error,
+.notice--warning {
+  border-color: #dfc78f;
+  color: #6f4c06;
+  background: #fff9e9;
+}
+
+.notice p:last-child {
+  margin-bottom: 0;
+}
+
+.rules-list,
+.activity-list,
+.stack-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rule-row {
+  display: grid;
+  grid-template-columns: 32px 1.05fr 1.35fr 90px 1.5fr auto;
+  align-items: end;
+  gap: 10px;
+  padding: 15px 0;
+  border-top: 1px solid #e8ece7;
+}
+
+.rule-row:first-child {
+  border-top: 0;
+}
+
+.rule-row .field {
+  gap: 5px;
+  font-size: 0.75rem;
+}
+
+.rule-enabled {
+  align-self: center;
+  width: 18px;
+  min-height: 18px;
+}
+
+.rule-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.icon-button {
+  display: grid;
+  width: 33px;
+  height: 33px;
+  place-items: center;
+  border: 1px solid #cbd5cc;
+  border-radius: 8px;
+  color: #3c5e49;
+  background: #fff;
+}
+
+.icon-button:disabled {
+  cursor: default;
+  opacity: 0.38;
+}
+
+.popup {
+  width: 390px;
+  min-height: 480px;
+  background: #f6f8f4;
+}
+
+.popup-layout {
+  padding: 20px;
+}
+
+.popup-header {
+  margin-bottom: 20px;
+}
+
+.popup h1 {
+  margin: 0;
+  font-size: 1.65rem;
+}
+
+.popup h2 {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.activity-item,
+.problem-item {
+  margin-bottom: 9px;
+  border: 1px solid #dfe5dc;
+  border-radius: 12px;
+  padding: 12px;
+  background: #fff;
+}
+
+.activity-item__title {
+  overflow: hidden;
+  margin: 0 0 4px;
+  font-size: 0.88rem;
+  font-weight: 750;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.activity-item__meta,
+.problem-item {
+  color: #65716b;
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+.activity-item__actions {
+  margin-top: 8px;
+}
+
+.empty-state {
+  padding: 15px 0;
+  text-align: center;
+}
+
+.popup-footer {
+  margin-top: 18px;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+@media (max-width: 760px) {
+  .page {
+    min-width: 0;
+  }
+
+  .layout {
+    width: min(100% - 24px, 920px);
+    padding-top: 24px;
+  }
+
+  .field-grid,
+  .rule-row {
+    grid-template-columns: 1fr;
+  }
+
+  .nestmark-mark {
+    display: none;
+  }
+}

@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title data-i18n="optionsPageTitle"></title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body class="page">
+    <main class="layout layout--wide">
+      <header class="hero">
+        <div>
+          <p class="eyebrow" data-i18n="extensionName"></p>
+          <h1 data-i18n="optionsHeading"></h1>
+          <p class="hero__copy" data-i18n="optionsIntroduction"></p>
+        </div>
+        <span class="nestmark-mark" aria-hidden="true">N</span>
+      </header>
+
+      <form id="settings-form" novalidate>
+        <section class="card" aria-labelledby="folders-heading">
+          <div class="section-heading">
+            <div>
+              <h2 id="folders-heading" data-i18n="foldersHeading"></h2>
+              <p data-i18n="foldersDescription"></p>
+            </div>
+          </div>
+          <div class="field-grid">
+            <label class="field">
+              <span data-i18n="inboxFolderLabel"></span>
+              <select id="inbox-folder" required></select>
+              <small data-i18n="inboxFolderHelp"></small>
+            </label>
+            <label class="field">
+              <span data-i18n="reviewFolderLabel"></span>
+              <select id="review-folder" required></select>
+              <small data-i18n="reviewFolderHelp"></small>
+            </label>
+          </div>
+          <label class="check-row">
+            <input id="process-existing" type="checkbox">
+            <span data-i18n="processExistingLabel"></span>
+          </label>
+        </section>
+
+        <section class="card" aria-labelledby="behavior-heading">
+          <h2 id="behavior-heading" data-i18n="behaviorHeading"></h2>
+          <label class="field field--short">
+            <span data-i18n="confidenceThresholdLabel"></span>
+            <span class="input-with-suffix">
+              <input id="confidence-threshold" type="number" min="0" max="100" step="1" required>
+              <span aria-hidden="true">%</span>
+            </span>
+            <small data-i18n="confidenceThresholdHelp"></small>
+          </label>
+        </section>
+
+        <section class="card" aria-labelledby="rules-heading">
+          <div class="section-heading">
+            <div>
+              <h2 id="rules-heading" data-i18n="rulesHeading"></h2>
+              <p data-i18n="rulesDescription"></p>
+            </div>
+            <button id="add-rule" class="button button--secondary" type="button" data-i18n="addRuleButton"></button>
+          </div>
+          <div id="rules-empty" class="empty-state" data-i18n="rulesEmpty"></div>
+          <ol id="rules-list" class="rules-list"></ol>
+        </section>
+
+        <div id="settings-message" class="notice" role="status" aria-live="polite" hidden></div>
+        <div class="form-actions">
+          <button class="button button--primary" type="submit" data-i18n="saveSettingsButton"></button>
+        </div>
+      </form>
+    </main>
+    <script type="module" src="ui/options.js"></script>
+  </body>
+</html>

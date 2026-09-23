@@ -1,6 +1,6 @@
-# Proposed architecture
+# Architecture
 
-Status: Initial proposal; implementation has not started.
+Status: Implemented for the local-install MVP.
 
 ## System boundary
 
@@ -73,9 +73,10 @@ bookmark tree is always re-read before mutation.
 - Popup/activity: recent outcomes, actionable errors, and available Undo.
 - Toolbar badge: unresolved operational/configuration error count.
 
-## Proposed persisted models
+## Persisted models
 
-The exact schema will be decided before Phase 2. Conceptually it requires:
+The implementation persists the following versioned settings and workflow
+concepts in `storage.local`:
 
 ```text
 Settings

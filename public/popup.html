@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title data-i18n="popupPageTitle"></title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body class="popup">
+    <main class="popup-layout">
+      <header class="popup-header">
+        <div>
+          <p class="eyebrow" data-i18n="extensionName"></p>
+          <h1 data-i18n="activityHeading"></h1>
+        </div>
+        <span class="nestmark-mark nestmark-mark--small" aria-hidden="true">N</span>
+      </header>
+
+      <section id="setup-panel" class="notice notice--warning" hidden>
+        <p data-i18n="setupRequiredMessage"></p>
+        <button id="open-options-setup" class="button button--primary" type="button" data-i18n="openSettingsButton"></button>
+      </section>
+
+      <section id="problems-section" aria-labelledby="problems-heading" hidden>
+        <div class="section-heading section-heading--compact">
+          <h2 id="problems-heading" data-i18n="problemsHeading"></h2>
+          <button id="clear-problems" class="text-button" type="button" data-i18n="dismissProblemsButton"></button>
+        </div>
+        <ul id="problems-list" class="stack-list"></ul>
+      </section>
+
+      <section aria-labelledby="activity-heading">
+        <div class="section-heading section-heading--compact">
+          <h2 id="activity-heading" data-i18n="recentActivityHeading"></h2>
+          <button id="clear-activity" class="text-button" type="button" data-i18n="clearActivityButton"></button>
+        </div>
+        <p id="activity-empty" class="empty-state" data-i18n="activityEmpty"></p>
+        <ol id="activity-list" class="activity-list"></ol>
+      </section>
+
+      <footer class="popup-footer">
+        <button id="open-options" class="button button--secondary button--full" type="button" data-i18n="openSettingsButton"></button>
+      </footer>
+    </main>
+    <script type="module" src="ui/popup.js"></script>
+  </body>
+</html>

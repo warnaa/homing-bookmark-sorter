@@ -59,3 +59,52 @@ and folder text remains untouched.
 The MVP classifies URL and title metadata with deterministic rules. This keeps
 permissions narrow and decisions explainable. Content or remote classification
 requires a later explicit privacy and permission decision.
+
+## D-007: Use plain TypeScript without a runtime UI framework
+
+- Date: 2026-09-24
+- Status: Accepted
+
+The extension will use browser-native HTML, CSS, and TypeScript modules with a
+small compile-and-copy build. This keeps the package inspectable, avoids runtime
+dependencies, and makes service-worker and browser-API boundaries explicit.
+
+## D-008: Use ordered first-match rule evaluation
+
+- Date: 2026-09-24
+- Status: Accepted
+
+Rules are evaluated in the order shown in settings. The first enabled matching
+rule owns the result. Its user-visible confidence is compared with the global
+threshold; a match below the threshold goes to Needs review rather than falling
+through to a lower-priority rule. This makes rule order authoritative and the
+decision easy to explain.
+
+## D-009: Keep profile-specific settings local
+
+- Date: 2026-09-24
+- Status: Accepted
+
+Settings, work attempts, problems, and activity use `storage.local`. Folder IDs
+are browser-profile-specific and cannot be safely applied on another profile by
+syncing them blindly. A future import/export flow must reconcile logical folder
+paths explicitly.
+
+## D-010: Bound Undo and activity history
+
+- Date: 2026-09-24
+- Status: Accepted
+
+Undo is available for 10 minutes after a confident automatic move, provided the
+bookmark is still in the extension-selected destination. Recent activity is
+limited to 100 records. Clearing activity does not move or delete bookmarks.
+
+## D-011: Recover durable work with a periodic alarm
+
+- Date: 2026-09-24
+- Status: Accepted
+
+Every attempt is persisted before classification or movement. The service
+worker reconciles unfinished attempts at startup and from a one-minute alarm,
+which is recreated whenever the worker starts. This avoids treating worker
+memory as durable state.

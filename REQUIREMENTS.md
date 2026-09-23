@@ -1,6 +1,7 @@
 # Nestmark product requirements
 
-Status: Initial baseline  
+Status: MVP implemented
+
 Last updated: 2026-09-24
 
 ## 1. Purpose
@@ -224,10 +225,7 @@ The MVP excludes:
 
 ## 7. Open product decisions
 
-- Exact duration and semantics of the Undo window.
-- Default activity-history retention.
-- Whether rules use first-match-wins exclusively or allow weighted composition
-  after the MVP.
-- Whether extension settings should synchronize through browser sync storage
-  when folder IDs may differ across browser profiles.
 - Store name and branding availability for “Nestmark.”
+
+The Undo window, activity retention, rule evaluation, and settings-storage
+questions were resolved in decisions D-008 through D-010.
