@@ -54,6 +54,8 @@ Each run used an isolated temporary browser profile and verified:
    reclassification.
 8. Forced service-worker termination followed by restart reconciles a persisted
    post-move attempt without moving the bookmark again.
+9. A folder created while settings are open appears automatically without
+   discarding an unsaved rule edit or the current folder selections.
 
 Screenshots from the latest smoke run were inspected for layout and readability.
 They are generated under `test-results/browser-smoke/` and intentionally remain

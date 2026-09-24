@@ -46,6 +46,10 @@ destination or to a visible Needs review folder.
 - **FR-008** If a configured folder is deleted or becomes unwritable, Nestmark
   shall report the configuration problem and shall not silently substitute a
   similarly named folder.
+- **FR-009** While settings are open, bookmark-folder additions, removals,
+  renames, and moves shall refresh the available folder choices without
+  discarding unsaved folder selections, rule edits, threshold changes, or the
+  process-existing choice.
 
 ### 3.2 Watch boundary
 

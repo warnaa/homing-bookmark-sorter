@@ -108,3 +108,12 @@ Every attempt is persisted before classification or movement. The service
 worker reconciles unfinished attempts at startup and from a one-minute alarm,
 which is recreated whenever the worker starts. This avoids treating worker
 memory as durable state.
+
+## D-012: Refresh folder choices without discarding drafts
+
+- Date: 2026-09-24
+- Status: Accepted
+
+The open settings page listens for bookmark-folder creation, removal, rename,
+and movement events. It refreshes folder choices automatically while preserving
+all unsaved controls. A manual refresh button provides an explicit fallback.

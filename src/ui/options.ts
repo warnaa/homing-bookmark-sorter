@@ -15,6 +15,7 @@ import { localizeDocument, message } from "./i18n.js";
 const repository = new ChromeStateRepository();
 let folders: FolderChoice[] = [];
 let settings: Settings;
+let folderRefreshTimer: ReturnType<typeof setTimeout> | undefined;
 
 function requiredElement<T extends HTMLElement>(id: string): T {
   const element = document.getElementById(id);
@@ -218,6 +219,45 @@ function refreshDependentFolderSelects(): void {
   renderRules();
 }
 
+function captureUnsavedControls(): void {
+  settings.inboxFolderId = inboxSelect.value;
+  settings.reviewFolderId = reviewSelect.value;
+  settings.confidenceThreshold = Number(thresholdInput.value);
+}
+
+async function refreshFolderChoices(showConfirmation = false): Promise<void> {
+  captureUnsavedControls();
+  const nextFolders = await loadFolderChoices();
+  folders = nextFolders;
+  populateFolderSelect(inboxSelect, settings.inboxFolderId, {
+    excludeInbox: false,
+  });
+  populateFolderSelect(reviewSelect, settings.reviewFolderId, {
+    excludeInbox: true,
+  });
+  renderRules();
+  if (showConfirmation) showStatus(message("foldersRefreshedMessage"));
+}
+
+function scheduleFolderRefresh(): void {
+  if (folderRefreshTimer !== undefined) clearTimeout(folderRefreshTimer);
+  folderRefreshTimer = setTimeout(() => {
+    folderRefreshTimer = undefined;
+    void refreshFolderChoices().catch(() => {
+      showStatus(message("foldersRefreshError"), true);
+    });
+  }, 100);
+}
+
+function refreshIfFolder(nodeId: string): void {
+  void chrome.bookmarks
+    .get(nodeId)
+    .then((nodes) => {
+      if (nodes[0] && !nodes[0].url) scheduleFolderRefresh();
+    })
+    .catch(() => undefined);
+}
+
 const issueMessageKeys: Record<ValidationIssueCode, string> = {
   inbox_required: "validationInboxRequired",
   review_required: "validationReviewRequired",
@@ -284,6 +324,14 @@ async function initialize(): Promise<void> {
   renderRules();
 
   inboxSelect.addEventListener("change", refreshDependentFolderSelects);
+  reviewSelect.addEventListener("change", () => {
+    settings.reviewFolderId = reviewSelect.value;
+  });
+  requiredElement("refresh-folders").addEventListener("click", () => {
+    void refreshFolderChoices(true).catch(() => {
+      showStatus(message("foldersRefreshError"), true);
+    });
+  });
   requiredElement("add-rule").addEventListener("click", () => {
     settings.rules.push(createRule());
     renderRules();
@@ -291,6 +339,15 @@ async function initialize(): Promise<void> {
   form.addEventListener("submit", (event) => {
     void save(event);
   });
+
+  chrome.bookmarks.onCreated.addListener((_id, node) => {
+    if (!node.url) scheduleFolderRefresh();
+  });
+  chrome.bookmarks.onRemoved.addListener((_id, removeInfo) => {
+    if (!removeInfo.node.url) scheduleFolderRefresh();
+  });
+  chrome.bookmarks.onChanged.addListener((id) => refreshIfFolder(id));
+  chrome.bookmarks.onMoved.addListener((id) => refreshIfFolder(id));
 }
 
 void initialize().catch(() => {

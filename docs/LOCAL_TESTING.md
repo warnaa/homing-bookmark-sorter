@@ -68,6 +68,10 @@ Open Nestmark's popup and select **Open settings**, then:
 4. Leave confidence at `100` and the global minimum at `80`.
 5. Save settings.
 
+If you create, rename, move, or remove bookmark folders while settings remain
+open, the folder choices update automatically without discarding unsaved rule
+or form changes. **Refresh folders** is available as a manual fallback.
+
 The optional checkbox processes bookmarks that were already direct children of
 the Inbox. Leave it clear when you want to test only new arrivals.
 

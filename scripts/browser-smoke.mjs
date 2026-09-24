@@ -1,4 +1,4 @@
-/* global chrome, setTimeout, URL */
+/* global chrome, document, Event, setTimeout, URL */
 import assert from "node:assert/strict";
 import { access, mkdir } from "node:fs/promises";
 import path from "node:path";
@@ -155,6 +155,28 @@ try {
   assert.equal(await page.$eval("#inbox-folder", (element) => element.value), ids.inbox);
   assert.equal(await page.$eval("#review-folder", (element) => element.value), ids.review);
   assert.equal(await page.$$eval(".rule-row", (rows) => rows.length), 1);
+
+  await page.$eval(".rule-row input[type='text']", (input) => {
+    input.value = "unsaved.example";
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+  const newFolder = await page.evaluate(async (qaRootId) =>
+    chrome.bookmarks.create({ parentId: qaRootId, title: "New unsaved destination" }),
+  ids.qaRoot);
+  await page.waitForFunction(
+    (folderId) =>
+      [...document.querySelectorAll("#review-folder option")].some(
+        (option) => option.value === folderId,
+      ),
+    {},
+    newFolder.id,
+  );
+  assert.equal(
+    await page.$eval(".rule-row input[type='text']", (input) => input.value),
+    "unsaved.example",
+  );
+  assert.equal(await page.$eval("#inbox-folder", (element) => element.value), ids.inbox);
+  assert.equal(await page.$eval("#review-folder", (element) => element.value), ids.review);
   await page.screenshot({
     path: path.join(artifactsPath, "options.png"),
     fullPage: true,
