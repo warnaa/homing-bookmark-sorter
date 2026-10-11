@@ -60,10 +60,13 @@ Current capabilities:
 When documents disagree, `REQUIREMENTS.md` is the product source of truth and
 newer accepted entries in `docs/DECISIONS.md` explain intentional changes.
 
-## Working name
+## Name
 
-**Homing** is a working product name, not a claim of trademark or store-name
-availability. Name availability must be checked before publication.
+The extension is meant for the Chrome Web Store only, as "Homing - bookmark
+sorter" ("Homing - sortowanie zakładek" in Polish). A name check on 2026-10-11
+found no conflicting extension and no EU-wide "Homing" trademark for software;
+the closest mark is a French registration for hotel software. See
+[D-015](docs/DECISIONS.md) for details. This is not legal advice.
 
 ## Development
 

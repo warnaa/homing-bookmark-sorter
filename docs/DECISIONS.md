@@ -140,3 +140,29 @@ Nestmark refer to the same product. The icon is a swallow whose tail is a
 bookmark ribbon; `public/icons/homing.svg` is the source for the generated PNG
 icons (`npm run generate:icons`). Store, domain, and trademark availability
 still have not been verified.
+
+## D-015: Keep the Homing name after an availability check
+
+- Date: 2026-10-11
+- Status: Accepted
+
+Homing will be distributed only through the Chrome Web Store, so no domain is
+needed. The
+store name is "Homing - bookmark sorter" ("Homing - sortowanie zakładek"); the
+descriptor distinguishes it from similarly named listings, and the short name
+stays "Homing".
+
+A check on 2026-10-11 found:
+
+- Chrome Web Store: the closest listing is "Hom" (hom.xyz, bookmarks and notes,
+  last updated in 2022), a different name. "Homing Missile Game 3D" is an
+  unrelated game.
+- TMview, first page of results for "Homing": the only live mark covering
+  software (Nice classes 9 and 42) is HOMING, French registration 97705680 held
+  by Septeo Hospitality Solutions for hotel software. Live EUIPO marks
+  017933103 (classes 35, 36, 38) and 018284968 (classes 24, 27) cover other
+  goods and services. The remaining results are expired or outside the EU.
+
+The risk of confusion is judged low for a free bookmark extension with a
+descriptive store name. Paid distribution or registering a Homing mark would
+need professional trademark advice first.

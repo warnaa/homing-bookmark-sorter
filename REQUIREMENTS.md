@@ -229,7 +229,8 @@ The MVP excludes:
 
 ## 7. Open product decisions
 
-- Store name and branding availability for “Homing.”
+No product decisions are currently open. Store name availability was resolved
+in decision D-015.
 
 The Undo window, activity retention, rule evaluation, and settings-storage
 questions were resolved in decisions D-008 through D-010.
