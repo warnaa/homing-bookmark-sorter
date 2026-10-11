@@ -52,6 +52,29 @@ for (const page of ["options.html", "popup.html"]) {
   }
 }
 
+// Every translation must cover the default locale's keys with the same
+// substitutions; Chrome would otherwise fall back to English per message.
+const placeholders = (text) => [...text.matchAll(/\$\d/g)].map(([token]) => token).sort().join();
+const locales = (await readdir(path.join(dist, "_locales"), { withFileTypes: true }))
+  .filter((entry) => entry.isDirectory())
+  .map((entry) => entry.name);
+for (const locale of locales) {
+  if (locale === manifest.default_locale) continue;
+  const translated = await readJson(`_locales/${locale}/messages.json`);
+  for (const [key, entry] of Object.entries(messages)) {
+    if (!translated[key]?.message) {
+      throw new Error(`Locale ${locale} is missing i18n key: ${key}`);
+    }
+    if (placeholders(translated[key].message) !== placeholders(entry.message)) {
+      throw new Error(`Locale ${locale} changes substitutions in: ${key}`);
+    }
+  }
+  const extra = Object.keys(translated).filter((key) => !(key in messages));
+  if (extra.length) {
+    throw new Error(`Locale ${locale} has unknown i18n keys: ${extra.join(", ")}`);
+  }
+}
+
 if (manifest.host_permissions || manifest.content_scripts) {
   throw new Error("MVP package unexpectedly requests page access");
 }
@@ -65,5 +88,5 @@ if (forbidden.length) {
 }
 
 process.stdout.write(
-  `Validated ${packagedFiles.length} packaged files with narrow permissions.\n`,
+  `Validated ${packagedFiles.length} packaged files and locales (${locales.join(", ")}) with narrow permissions.\n`,
 );

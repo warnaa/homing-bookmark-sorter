@@ -36,8 +36,14 @@ explicit. Do not silently redefine the requirement in code.
 
 ## Internationalization
 
-- Add every user-facing string to `_locales/en/messages.json` when the extension
-  shell exists.
+- Add every user-facing string to `public/_locales/en/messages.json` and
+  translate it in every other locale under `public/_locales/` (currently `pl`)
+  in the same change. Do not leave English text in a translation file.
+- When an English message changes meaning, update its translations too; the
+  build check only catches missing keys and changed `$1` substitutions.
+- Keep message keys and `$1`-style substitutions identical across locales.
+- Keep established terminology: in Polish, Inbox is "Skrzynka" and Needs review
+  is "Do przejrzenia".
 - Use stable semantic message keys.
 - Do not translate or normalize user-created bookmark titles or folder names.
 - Test fallback behavior for missing message keys.

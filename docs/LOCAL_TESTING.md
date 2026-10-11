@@ -127,6 +127,16 @@ Delete a configured test destination. Nestmark should show a toolbar badge and
 an actionable problem in the popup. Affected Inbox bookmarks go to Needs review
 instead of a similarly named guessed folder.
 
+## Check the translation
+
+The UI follows the browser's display language: Polish for a Polish browser,
+English for every other language. To check Polish in an English browser, start
+it with `--lang=pl` from a separate profile, for example:
+
+```powershell
+& 'C:\Program Files\Google\Chrome\Application\chrome.exe' --lang=pl --user-data-dir="$env:TEMP\nestmark-pl"
+```
+
 ## Rule behavior
 
 Rules use explicit top-to-bottom priority. The first matching rule owns the
@@ -147,7 +157,8 @@ bookmark goes to Needs review. Lower-priority rules are not considered.
 The smoke test launches the built extension in an isolated temporary browser
 profile, so it does not touch bookmarks in your normal profile. It verifies the
 settings UI, activity UI, watch boundary, matching destination, Needs review,
-and Undo.
+and Undo. It also starts a Polish browser to confirm the UI follows the browser
+language; the main run forces English with `--lang=en-US`.
 
 Chrome is detected automatically on standard Windows installation paths:
 

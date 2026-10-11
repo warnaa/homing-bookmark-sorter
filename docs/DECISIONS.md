@@ -117,3 +117,14 @@ memory as durable state.
 The open settings page listens for bookmark-folder creation, removal, rename,
 and movement events. It refreshes folder choices automatically while preserving
 all unsaved controls. A manual refresh button provides an explicit fallback.
+
+## D-013: Ship Polish alongside English
+
+- Date: 2026-10-11
+- Status: Accepted
+
+Nestmark ships English and Polish message catalogs. The browser picks the
+catalog matching its UI language and falls back to English, the default locale,
+for any other language. The build check rejects a translation that misses a
+key, adds an unknown key, or changes `$1`-style substitutions, so a partial
+translation cannot silently mix languages.

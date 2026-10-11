@@ -27,7 +27,8 @@ Current capabilities:
 - Preserve deliberate placement outside the Inbox and later manual moves.
 - Recover unfinished work after service-worker suspension.
 - Explain recent decisions and offer a safe 10-minute Undo.
-- Keep all extension data local and all UI text localization-ready.
+- Keep all extension data local.
+- Show the UI in English or Polish, following the browser language.
 
 ## Product principles
 

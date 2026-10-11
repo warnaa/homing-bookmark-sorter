@@ -37,13 +37,49 @@ if (!executablePath) {
 
 await mkdir(artifactsPath, { recursive: true });
 
-const browser = await puppeteer.launch({
-  executablePath,
-  headless: true,
-  pipe: true,
-  enableExtensions: [extensionPath],
-  args: ["--no-first-run", "--no-default-browser-check"],
-});
+function launchBrowser(language) {
+  return puppeteer.launch({
+    executablePath,
+    headless: true,
+    pipe: true,
+    enableExtensions: [extensionPath],
+    args: ["--no-first-run", "--no-default-browser-check", `--lang=${language}`],
+    env: { ...process.env, LANGUAGE: language },
+  });
+}
+
+async function extensionIdFor(browser) {
+  const workerTarget = await browser.waitForTarget(
+    (target) =>
+      target.type() === "service_worker" &&
+      target.url().endsWith("background/service-worker.js"),
+    { timeout: 15_000 },
+  );
+  return new URL(workerTarget.url()).host;
+}
+
+// The extension follows the browser UI language; Polish must be picked up.
+const polishBrowser = await launchBrowser("pl");
+try {
+  const polishId = await extensionIdFor(polishBrowser);
+  const polishPage = await polishBrowser.newPage();
+  await polishPage.goto(`chrome-extension://${polishId}/options.html`);
+  await polishPage.waitForSelector("#add-rule");
+  assert.equal(await polishPage.$eval("html", (element) => element.lang), "pl");
+  assert.equal(await polishPage.$eval("h1", (element) => element.textContent), "Ustawienia Nestmark");
+  assert.equal(await polishPage.$eval("#add-rule", (element) => element.textContent), "Dodaj regułę");
+  await polishPage.setViewport({ width: 1280, height: 720 });
+  await polishPage.screenshot({ path: path.join(artifactsPath, "options-pl.png") });
+  await polishPage.goto(`chrome-extension://${polishId}/popup.html`);
+  assert.equal(
+    await polishPage.$eval("#activity-heading", (element) => element.textContent),
+    "Ostatnia aktywność",
+  );
+} finally {
+  await polishBrowser.close();
+}
+
+const browser = await launchBrowser("en-US");
 
 try {
   const workerTarget = await browser.waitForTarget(
