@@ -98,27 +98,17 @@ h2 {
   text-transform: uppercase;
 }
 
-.nestmark-mark {
-  display: grid;
+.brand-mark {
+  display: block;
   flex: 0 0 auto;
   width: 76px;
   height: 76px;
-  place-items: center;
-  border: 1px solid #94ad98;
-  border-radius: 24px 24px 24px 7px;
-  color: #fff;
-  background: #315b42;
-  box-shadow: 0 16px 36px rgb(49 91 66 / 20%);
-  font-family: Georgia, serif;
-  font-size: 2.25rem;
-  font-style: italic;
 }
 
-.nestmark-mark--small {
-  width: 45px;
-  height: 45px;
-  border-radius: 15px 15px 15px 5px;
-  font-size: 1.35rem;
+.brand-mark--small {
+  width: 46px;
+  height: 46px;
+  filter: drop-shadow(0 8px 18px rgb(49 91 66 / 22%));
 }
 
 .card {
@@ -503,12 +493,9 @@ button:focus-visible {
   font-size: 1.05rem;
 }
 
-.nestmark-mark--tiny {
+.brand-mark--tiny {
   width: 30px;
   height: 30px;
-  border-radius: 10px 10px 10px 4px;
-  box-shadow: none;
-  font-size: 1rem;
 }
 
 .popup h2 {

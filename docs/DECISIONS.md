@@ -7,7 +7,7 @@ being silently rewritten.
 ## D-001: Use the working name Nestmark
 
 - Date: 2026-09-24
-- Status: Accepted as a working name
+- Status: Superseded by D-014
 
 Nestmark conveys the idea that bookmarks are moved from an inbox into an
 appropriate home. Store, domain, and trademark availability have not been
@@ -128,3 +128,15 @@ catalog matching its UI language and falls back to English, the default locale,
 for any other language. The build check rejects a translation that misses a
 key, adds an unknown key, or changes `$1`-style substitutions, so a partial
 translation cannot silently mix languages.
+
+## D-014: Rename the working name to Homing
+
+- Date: 2026-10-11
+- Status: Accepted as a working name; supersedes D-001
+
+The extension is now called Homing, after homing birds that find their way
+back to their nest the way a bookmark finds its folder. Earlier entries that say
+Nestmark refer to the same product. The icon is a swallow whose tail is a
+bookmark ribbon; `public/icons/homing.svg` is the source for the generated PNG
+icons (`npm run generate:icons`). Store, domain, and trademark availability
+still have not been verified.

@@ -1,13 +1,15 @@
-# Nestmark
+<img src="public/icons/homing.svg" alt="" width="96" height="96">
 
-**A quiet inbox for bookmarks that puts every saved page in the right nest.**
+# Homing
 
-Nestmark is a planned browser extension that watches one user-selected bookmark
+**Bookmarks that find their own way home.**
+
+Homing is a planned browser extension that watches one user-selected bookmark
 folder, classifies bookmarks arriving there, and moves them to user-selected
 destination folders. Bookmarks saved anywhere else are treated as intentional
 and are never reorganized.
 
-When Nestmark cannot choose a destination confidently, it moves the bookmark to
+When Homing cannot choose a destination confidently, it moves the bookmark to
 a separately configured **Needs review** folder. Both classification
 destinations and the review folder may live anywhere writable in the browser's
 bookmark tree.
@@ -60,7 +62,7 @@ newer accepted entries in `docs/DECISIONS.md` explain intentional changes.
 
 ## Working name
 
-**Nestmark** is a working product name, not a claim of trademark or store-name
+**Homing** is a working product name, not a claim of trademark or store-name
 availability. Name availability must be checked before publication.
 
 ## Development

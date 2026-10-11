@@ -1,4 +1,4 @@
-# Nestmark implementation plan
+# Homing implementation plan
 
 Status: Local-install MVP completed
 

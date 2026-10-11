@@ -1,6 +1,6 @@
-# Build and test Nestmark locally
+# Build and test Homing locally
 
-Nestmark loads as an unpacked Manifest V3 extension in current Chromium-based
+Homing loads as an unpacked Manifest V3 extension in current Chromium-based
 browsers. It has been exercised automatically in Google Chrome and Microsoft
 Edge.
 
@@ -38,10 +38,10 @@ The final unpacked extension is written to `dist/`. The check command runs:
 2. Enable **Developer mode**.
 3. Select **Load unpacked**.
 4. Select this repository's `dist` folder, not the repository root or `src`.
-5. Pin Nestmark to the toolbar if you want quick access to activity and Undo.
+5. Pin Homing to the toolbar if you want quick access to activity and Undo.
 
 After rebuilding, return to the extensions page and select the Reload button on
-the Nestmark card.
+the Homing card.
 
 ## Configure a test setup
 
@@ -49,7 +49,7 @@ Create at least four ordinary bookmark folders using the browser's bookmark
 manager:
 
 ```text
-Nestmark test
+Homing test
 ├── Inbox
 ├── Needs review
 ├── Development
@@ -59,7 +59,7 @@ Nestmark test
 The names and hierarchy are only examples. Destination and Needs review folders
 can be anywhere writable outside the Inbox.
 
-Open Nestmark's popup and select the settings (⚙) button, then:
+Open Homing's popup and select the settings (⚙) button, then:
 
 1. Choose `Inbox` as the Inbox folder.
 2. Choose `Needs review` as the Needs review folder.
@@ -88,14 +88,14 @@ the Inbox. Leave it clear when you want to test only new arrivals.
 ### Intentional placement remains untouched
 
 Bookmark any page directly into `Personal`. Wait a moment and confirm it stays
-there. Nestmark must not organize anything outside the configured Inbox.
+there. Homing must not organize anything outside the configured Inbox.
 
 ### A matching bookmark reaches its destination
 
 Open a page on `developer.chrome.com`, bookmark it directly into `Inbox`, and
 confirm it moves to `Development`.
 
-Open the Nestmark popup. Recent activity should identify the destination, rule
+Open the Homing popup. Recent activity should identify the destination, rule
 confidence, and time.
 
 ### An unmatched bookmark needs review
@@ -108,7 +108,7 @@ the bookmark's domain in the new-rule row and the destination selector focused.
 
 ### Returning an item retries classification
 
-Move a bookmark from `Needs review` back to `Inbox`. Nestmark should make a new
+Move a bookmark from `Needs review` back to `Inbox`. Homing should make a new
 classification attempt. It will return to Needs review until a matching rule is
 added.
 
@@ -118,12 +118,12 @@ Within 10 minutes of a confident automatic move, select **Undo** in the popup.
 The bookmark should return to Inbox and remain there; the Undo operation itself
 must not trigger immediate reclassification.
 
-Move an automatically sorted bookmark manually before trying Undo. Nestmark
+Move an automatically sorted bookmark manually before trying Undo. Homing
 must refuse the stale Undo rather than override the newer placement.
 
 ### Folder problems are visible
 
-Delete a configured test destination. Nestmark should show a toolbar badge and
+Delete a configured test destination. Homing should show a toolbar badge and
 an actionable problem in the popup. Affected Inbox bookmarks go to Needs review
 instead of a similarly named guessed folder.
 
@@ -134,7 +134,7 @@ English for every other language. To check Polish in an English browser, start
 it with `--lang=pl` from a separate profile, for example:
 
 ```powershell
-& 'C:\Program Files\Google\Chrome\Application\chrome.exe' --lang=pl --user-data-dir="$env:TEMP\nestmark-pl"
+& 'C:\Program Files\Google\Chrome\Application\chrome.exe' --lang=pl --user-data-dir="$env:TEMP\homing-pl"
 ```
 
 ## Rule behavior

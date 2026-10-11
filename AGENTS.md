@@ -2,7 +2,7 @@
 
 ## Mission
 
-Build Nestmark as a narrow, trustworthy bookmark-inbox sorter. The extension
+Build Homing as a narrow, trustworthy bookmark-inbox sorter. The extension
 must automate only the configured Inbox and must preserve deliberate user
 placement everywhere else.
 

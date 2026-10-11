@@ -3,7 +3,7 @@
   "name": "__MSG_extensionName__",
   "short_name": "__MSG_extensionShortName__",
   "description": "__MSG_extensionDescription__",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "minimum_chrome_version": "120",
   "default_locale": "en",
   "permissions": ["alarms", "bookmarks", "storage"],

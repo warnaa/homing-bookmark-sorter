@@ -1,12 +1,12 @@
 # Privacy and permission rationale
 
-Nestmark's local-install MVP performs all processing inside the browser
+Homing's local-install MVP performs all processing inside the browser
 extension. It has no analytics, telemetry, remote API, account system, or
 network destination.
 
 ## Data handled
 
-Nestmark reads:
+Homing reads:
 
 - Bookmark IDs, parent folder IDs, titles, and URLs for bookmarks entering the
   configured Inbox.
@@ -14,7 +14,7 @@ Nestmark reads:
   destinations.
 - Its own local settings, pending work, recent activity, and reported problems.
 
-Nestmark does not read page bodies, cookies, browsing history, form data, or
+Homing does not read page bodies, cookies, browsing history, form data, or
 page content. It does not translate or modify bookmark titles.
 
 ## Permissions

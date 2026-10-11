@@ -66,7 +66,7 @@ try {
   await polishPage.goto(`chrome-extension://${polishId}/options.html`);
   await polishPage.waitForSelector("#add-rule");
   assert.equal(await polishPage.$eval("html", (element) => element.lang), "pl");
-  assert.equal(await polishPage.$eval("h1", (element) => element.textContent), "Ustawienia Nestmark");
+  assert.equal(await polishPage.$eval("h1", (element) => element.textContent), "Ustawienia Homing");
   assert.equal(await polishPage.$eval("#add-rule", (element) => element.textContent), "Dodaj regułę");
   await polishPage.setViewport({ width: 1280, height: 720 });
   await polishPage.screenshot({ path: path.join(artifactsPath, "options-pl.png") });
@@ -100,7 +100,7 @@ try {
 
     const qaRoot = await chrome.bookmarks.create({
       parentId: writableRoot.id,
-      title: "Nestmark browser smoke test",
+      title: "Homing browser smoke test",
     });
     const inbox = await chrome.bookmarks.create({ parentId: qaRoot.id, title: "Inbox" });
     const review = await chrome.bookmarks.create({ parentId: qaRoot.id, title: "Needs review" });

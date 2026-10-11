@@ -4,7 +4,7 @@ Status: Implemented for the local-install MVP.
 
 ## System boundary
 
-Nestmark is an event-driven Manifest V3 browser extension. It reads bookmark
+Homing is an event-driven Manifest V3 browser extension. It reads bookmark
 metadata and configuration, but the MVP does not read page bodies or contact a
 remote classification service.
 
@@ -122,7 +122,7 @@ need justifies retention.
 1. Receive a bookmark creation or movement event.
 2. Resolve current settings and ignore the event unless the node is a URL
    bookmark directly inside the Inbox.
-3. Ignore an event correlated with a Nestmark move.
+3. Ignore an event correlated with a Homing move.
 4. Persist a work attempt containing the observed parent and bookmark identity.
 5. Run the classifier using current rules.
 6. Re-read the bookmark and configured folder targets.

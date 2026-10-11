@@ -29,7 +29,7 @@ const executablePath = await firstExisting([
 ]);
 if (!executablePath) throw new Error("Set CHROME_PATH to a Chromium executable.");
 
-const svg = await readFile(path.join(root, "assets", "nestmark-icon.svg"), "utf8");
+const svg = await readFile(path.join(output, "homing.svg"), "utf8");
 await mkdir(output, { recursive: true });
 const browser = await puppeteer.launch({ executablePath, headless: true });
 
@@ -49,4 +49,4 @@ try {
   await browser.close();
 }
 
-process.stdout.write("Generated Nestmark icons at 16, 32, 48, and 128 pixels.\n");
+process.stdout.write("Generated Homing icons at 16, 32, 48, and 128 pixels.\n");
