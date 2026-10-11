@@ -40,8 +40,7 @@ button {
 }
 
 .popup-header,
-.section-heading,
-.popup-footer {
+.section-heading {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -479,21 +478,37 @@ button:focus-visible {
 
 .popup {
   width: 390px;
-  min-height: 480px;
+  min-height: 200px;
   background: #f6f8f4;
 }
 
 .popup-layout {
-  padding: 20px;
+  padding: 14px;
 }
 
 .popup-header {
-  margin-bottom: 20px;
+  justify-content: flex-start;
+  gap: 10px;
+  margin-bottom: 12px;
 }
 
-.popup h1 {
+.popup-header h1 {
+  flex: 1;
   margin: 0;
-  font-size: 1.65rem;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+}
+
+#open-options {
+  font-size: 1.05rem;
+}
+
+.nestmark-mark--tiny {
+  width: 30px;
+  height: 30px;
+  border-radius: 10px 10px 10px 4px;
+  box-shadow: none;
+  font-size: 1rem;
 }
 
 .popup h2 {
@@ -503,42 +518,145 @@ button:focus-visible {
 
 .activity-item,
 .problem-item {
-  margin-bottom: 9px;
+  margin-bottom: 6px;
   border: 1px solid #dfe5dc;
-  border-radius: 12px;
-  padding: 12px;
+  border-radius: 10px;
+  padding: 9px 10px;
   background: #fff;
 }
 
+.activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.status-icon {
+  display: grid;
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  margin-top: 1px;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.activity-item--moved .status-icon {
+  color: #fff;
+  background: #3f7a52;
+}
+
+.activity-item--review .status-icon {
+  color: #6f4c06;
+  background: #ffe7a6;
+}
+
+.activity-item--failed .status-icon {
+  color: #fff;
+  background: #c0392b;
+}
+
+.activity-item--cancelled .status-icon,
+.activity-item--undone .status-icon {
+  color: #4d5c55;
+  background: #e4e9e3;
+}
+
+.activity-item__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.activity-item__header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
 .activity-item__title {
+  flex: 1;
   overflow: hidden;
-  margin: 0 0 4px;
-  font-size: 0.88rem;
-  font-weight: 750;
+  margin: 0;
+  font-size: 0.86rem;
+  font-weight: 700;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.activity-item__meta,
+.activity-item__time {
+  flex: 0 0 auto;
+  color: #85928b;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.activity-item__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+  margin-top: 5px;
+}
+
 .problem-item {
   color: #65716b;
   font-size: 0.76rem;
   line-height: 1.45;
 }
 
+.chip {
+  overflow: hidden;
+  max-width: 100%;
+  border-radius: 6px;
+  padding: 1px 7px;
+  font-size: 0.72rem;
+  line-height: 1.5;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chip--folder {
+  color: #264d35;
+  background: #e6f0e7;
+  font-weight: 650;
+}
+
+.chip--muted {
+  color: #65716b;
+  background: #f0f3ef;
+}
+
+.chip--reason {
+  color: #7a5a12;
+  background: #fff6dd;
+}
+
+.activity-item--failed .chip--reason {
+  color: #a5281b;
+  background: #fdecea;
+}
+
+.activity-item--cancelled .chip--reason,
+.activity-item--undone .chip--reason {
+  color: #4d5c55;
+  background: #f0f3ef;
+}
+
 .activity-item__actions {
   display: flex;
-  gap: 12px;
-  margin-top: 8px;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.activity-item__actions .text-button {
+  padding: 1px 4px;
 }
 
 .empty-state {
   padding: 12px 0;
   text-align: center;
-}
-
-.popup-footer {
-  margin-top: 18px;
 }
 
 [hidden] {

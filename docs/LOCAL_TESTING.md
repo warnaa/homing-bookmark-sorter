@@ -59,7 +59,7 @@ Nestmark test
 The names and hierarchy are only examples. Destination and Needs review folders
 can be anywhere writable outside the Inbox.
 
-Open Nestmark's popup and select **Open settings**, then:
+Open Nestmark's popup and select the settings (⚙) button, then:
 
 1. Choose `Inbox` as the Inbox folder.
 2. Choose `Needs review` as the Needs review folder.

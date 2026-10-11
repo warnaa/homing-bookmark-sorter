@@ -7,6 +7,7 @@ import type {
 } from "../shared/messages.js";
 import { loadFolderChoices } from "./folders.js";
 import { localizeDocument, message } from "./i18n.js";
+import { formatActivityTime } from "./format.js";
 import { domainFromUrl } from "./rule-input.js";
 
 function requiredElement<T extends HTMLElement>(id: string): T {
@@ -25,21 +26,37 @@ function sendRequest(request: RuntimeRequest): Promise<RuntimeResponse> {
   return chrome.runtime.sendMessage(request) as Promise<RuntimeResponse>;
 }
 
-function folderName(id: string | undefined, paths: Map<string, string>): string {
-  return (id && paths.get(id)) || message("unknownFolderLabel");
+interface FolderNames {
+  paths: Map<string, string>;
+  titles: Map<string, string>;
 }
 
-function activitySummary(
-  record: ActivityRecord,
-  paths: Map<string, string>,
-): string {
-  switch (record.outcome) {
+type ActivityStatus = "moved" | "review" | "failed" | "cancelled" | "undone";
+
+const STATUS_ICONS: Record<ActivityStatus, string> = {
+  moved: "✓",
+  review: "?",
+  failed: "!",
+  cancelled: "↷",
+  undone: "↶",
+};
+
+function activityStatus(record: ActivityRecord): ActivityStatus {
+  return record.outcome === "moved" && record.undoneAt ? "undone" : record.outcome;
+}
+
+function folderPath(id: string | undefined, folders: FolderNames): string {
+  return (id && folders.paths.get(id)) || message("unknownFolderLabel");
+}
+
+function activitySummary(record: ActivityRecord, folders: FolderNames): string {
+  switch (activityStatus(record)) {
     case "moved":
-      return record.undoneAt
-        ? message("activityUndone")
-        : message("activityMoved", folderName(record.toFolderId, paths));
+      return message("activityMoved", folderPath(record.toFolderId, folders));
+    case "undone":
+      return message("activityUndone");
     case "review":
-      return message("activityNeedsReview", folderName(record.toFolderId, paths));
+      return message("activityNeedsReview", folderPath(record.toFolderId, folders));
     case "failed":
       return message("activityFailed");
     case "cancelled":
@@ -70,39 +87,95 @@ function reasonText(record: ActivityRecord): string {
   }
 }
 
-function renderActivity(
-  activity: ActivityRecord[],
-  paths: Map<string, string>,
-): void {
+/** A few words shown on the card; the full sentence stays in the tooltip. */
+function shortReason(record: ActivityRecord): string | undefined {
+  switch (record.reasonCode) {
+    case "rule_match":
+      return undefined;
+    case "below_threshold":
+      return message("reasonShortBelowThreshold", String(record.confidence ?? 0));
+    case "no_rule_match":
+      return message("reasonShortNoRule");
+    case "manual_move":
+      return message("reasonShortManualMove");
+    default:
+      return reasonText(record);
+  }
+}
+
+function chip(text: string, className: string, title?: string): HTMLSpanElement {
+  const element = document.createElement("span");
+  element.className = `chip ${className}`;
+  element.textContent = text;
+  if (title) element.title = title;
+  return element;
+}
+
+function renderActivity(activity: ActivityRecord[], folders: FolderNames): void {
   activityList.replaceChildren();
   activityEmpty.hidden = activity.length > 0;
-  const formatter = new Intl.DateTimeFormat(chrome.i18n.getUILanguage(), {
+  const locale = chrome.i18n.getUILanguage();
+  const fullTime = new Intl.DateTimeFormat(locale, {
     dateStyle: "medium",
     timeStyle: "short",
   });
+  const now = Date.now();
 
   for (const record of activity) {
+    const status = activityStatus(record);
+    const summary = activitySummary(record, folders);
+    const reason = reasonText(record);
+
     const item = document.createElement("li");
-    item.className = "activity-item";
+    item.className = `activity-item activity-item--${status}`;
+    item.title = `${summary}
+${reason}
+${fullTime.format(record.occurredAt)}`;
+
+    const icon = document.createElement("span");
+    icon.className = "status-icon";
+    icon.textContent = STATUS_ICONS[status];
+    icon.setAttribute("role", "img");
+    icon.setAttribute("aria-label", summary);
+
+    const body = document.createElement("div");
+    body.className = "activity-item__body";
+
+    const header = document.createElement("div");
+    header.className = "activity-item__header";
     const title = document.createElement("p");
     title.className = "activity-item__title";
     title.textContent = record.bookmarkTitle || message("untitledBookmarkLabel");
-    const summary = document.createElement("div");
-    summary.className = "activity-item__meta";
-    summary.textContent = `${activitySummary(record, paths)} · ${reasonText(record)} · ${formatter.format(record.occurredAt)}`;
-    item.append(title, summary);
+    const time = document.createElement("time");
+    time.className = "activity-item__time";
+    time.dateTime = new Date(record.occurredAt).toISOString();
+    time.textContent = formatActivityTime(record.occurredAt, now, locale);
+    header.append(title, time);
 
-    const canUndo =
-      record.outcome === "moved" &&
-      !record.undoneAt &&
-      record.undoExpiresAt !== undefined &&
-      record.undoExpiresAt > Date.now() &&
-      record.undoExpiresAt - record.occurredAt <= UNDO_WINDOW_MS;
-    const actions = document.createElement("div");
+    const meta = document.createElement("div");
+    meta.className = "activity-item__meta";
+    if ((status === "moved" || status === "review") && record.toFolderId) {
+      const path = folderPath(record.toFolderId, folders);
+      const name = folders.titles.get(record.toFolderId) || path;
+      meta.append(chip(`→ ${name}`, "chip--folder", path));
+    }
+    if (record.reasonCode === "rule_match" && record.confidence !== undefined) {
+      meta.append(chip(`${record.confidence}%`, "chip--muted", reason));
+    }
+    const short = status === "undone" ? summary : shortReason(record);
+    if (short) meta.append(chip(short, "chip--reason", reason));
+
+    const actions = document.createElement("span");
     actions.className = "activity-item__actions";
     if (record.outcome === "review") {
       actions.append(createRuleButton(record));
     }
+
+    const canUndo =
+      status === "moved" &&
+      record.undoExpiresAt !== undefined &&
+      record.undoExpiresAt > now &&
+      record.undoExpiresAt - record.occurredAt <= UNDO_WINDOW_MS;
     if (canUndo) {
       const undo = document.createElement("button");
       undo.type = "button";
@@ -115,14 +188,19 @@ function renderActivity(
           activityId: record.id,
         });
         if (!response.ok) {
-          summary.textContent = message(`error_${response.errorCode}`);
+          meta.replaceChildren(
+            chip(message(`error_${response.errorCode}`), "chip--reason"),
+          );
         } else {
           await load();
         }
       });
       actions.append(undo);
     }
-    if (actions.childElementCount) item.append(actions);
+    if (actions.childElementCount) meta.append(actions);
+
+    body.append(header, meta);
+    item.append(icon, body);
     activityList.append(item);
   }
 }
@@ -168,12 +246,15 @@ async function getState(): Promise<PopupState> {
 
 async function load(): Promise<void> {
   const [state, folders] = await Promise.all([getState(), loadFolderChoices()]);
-  const paths = new Map(folders.map((folder) => [folder.id, folder.path]));
+  const names: FolderNames = {
+    paths: new Map(folders.map((folder) => [folder.id, folder.path])),
+    titles: new Map(folders.map((folder) => [folder.id, folder.title])),
+  };
   setupPanel.hidden = Boolean(
     state.settings.inboxFolderId && state.settings.reviewFolderId,
   );
   renderProblems(state.problems);
-  renderActivity(state.activity, paths);
+  renderActivity(state.activity, names);
 }
 
 function openOptions(): void {

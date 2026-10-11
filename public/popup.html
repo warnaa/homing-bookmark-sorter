@@ -9,11 +9,10 @@
   <body class="popup">
     <main class="popup-layout">
       <header class="popup-header">
-        <div>
-          <p class="eyebrow" data-i18n="extensionName"></p>
-          <h1 data-i18n="activityHeading"></h1>
-        </div>
-        <span class="nestmark-mark nestmark-mark--small" aria-hidden="true">N</span>
+        <span class="nestmark-mark nestmark-mark--tiny" aria-hidden="true">N</span>
+        <h1 id="activity-heading" data-i18n="recentActivityHeading"></h1>
+        <button id="clear-activity" class="text-button" type="button" data-i18n="clearActivityButton"></button>
+        <button id="open-options" class="icon-button" type="button" data-i18n-aria-label="openSettingsButton" data-i18n-title="openSettingsButton">⚙</button>
       </header>
 
       <section id="setup-panel" class="notice notice--warning" hidden>
@@ -30,17 +29,9 @@
       </section>
 
       <section aria-labelledby="activity-heading">
-        <div class="section-heading section-heading--compact">
-          <h2 id="activity-heading" data-i18n="recentActivityHeading"></h2>
-          <button id="clear-activity" class="text-button" type="button" data-i18n="clearActivityButton"></button>
-        </div>
         <p id="activity-empty" class="empty-state" data-i18n="activityEmpty"></p>
         <ol id="activity-list" class="activity-list"></ol>
       </section>
-
-      <footer class="popup-footer">
-        <button id="open-options" class="button button--secondary button--full" type="button" data-i18n="openSettingsButton"></button>
-      </footer>
     </main>
     <script type="module" src="ui/popup.js"></script>
   </body>
