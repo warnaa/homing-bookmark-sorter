@@ -70,7 +70,8 @@ bookmark tree is always re-read before mutation.
 ### User interfaces
 
 - Options: folder selection, rule editing, threshold behavior, history controls.
-- Popup/activity: recent outcomes, actionable errors, and available Undo.
+- Popup/activity: recent outcomes, actionable errors, available Undo, and a
+  shortcut that opens Options with a rule suggested from a reviewed bookmark.
 - Toolbar badge: unresolved operational/configuration error count.
 
 ## Persisted models

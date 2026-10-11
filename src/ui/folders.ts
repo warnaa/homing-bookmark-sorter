@@ -3,6 +3,7 @@ import type { FolderSnapshot } from "../domain/types.js";
 
 export interface FolderChoice extends FolderSnapshot {
   path: string;
+  parentPath: string;
 }
 
 export function flattenFolders(
@@ -14,7 +15,11 @@ export function flattenFolders(
     if (node.url) return;
     const parts = node.title ? [...parents, node.title] : parents;
     if (node.parentId) {
-      folders.push({ ...toFolderSnapshot(node), path: parts.join(" / ") });
+      folders.push({
+        ...toFolderSnapshot(node),
+        path: parts.join(" / "),
+        parentPath: parents.join(" / "),
+      });
     }
     for (const child of node.children ?? []) visit(child, parts);
   };

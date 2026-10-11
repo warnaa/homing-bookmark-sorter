@@ -7,6 +7,7 @@ import type {
 } from "../shared/messages.js";
 import { loadFolderChoices } from "./folders.js";
 import { localizeDocument, message } from "./i18n.js";
+import { domainFromUrl } from "./rule-input.js";
 
 function requiredElement<T extends HTMLElement>(id: string): T {
   const element = document.getElementById(id);
@@ -97,9 +98,12 @@ function renderActivity(
       record.undoExpiresAt !== undefined &&
       record.undoExpiresAt > Date.now() &&
       record.undoExpiresAt - record.occurredAt <= UNDO_WINDOW_MS;
+    const actions = document.createElement("div");
+    actions.className = "activity-item__actions";
+    if (record.outcome === "review") {
+      actions.append(createRuleButton(record));
+    }
     if (canUndo) {
-      const actions = document.createElement("div");
-      actions.className = "activity-item__actions";
       const undo = document.createElement("button");
       undo.type = "button";
       undo.className = "text-button";
@@ -117,10 +121,28 @@ function renderActivity(
         }
       });
       actions.append(undo);
-      item.append(actions);
     }
+    if (actions.childElementCount) item.append(actions);
     activityList.append(item);
   }
+}
+
+function createRuleButton(record: ActivityRecord): HTMLButtonElement {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "text-button";
+  button.textContent = message("createRuleButton");
+  button.addEventListener("click", async () => {
+    const [bookmark] = await chrome.bookmarks
+      .get(record.bookmarkId)
+      .catch(() => []);
+    const pattern = bookmark?.url ? domainFromUrl(bookmark.url) : undefined;
+    const url = new URL(chrome.runtime.getURL("options.html"));
+    if (pattern) url.searchParams.set("pattern", pattern);
+    await chrome.tabs.create({ url: url.href });
+    window.close();
+  });
+  return button;
 }
 
 function problemText(problem: ProblemRecord): string {

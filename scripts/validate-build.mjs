@@ -45,7 +45,7 @@ for (const match of manifestText.matchAll(/__MSG_([A-Za-z0-9_]+)__/g)) {
 
 for (const page of ["options.html", "popup.html"]) {
   const html = await readFile(path.join(dist, page), "utf8");
-  for (const match of html.matchAll(/data-i18n="([A-Za-z0-9_]+)"/g)) {
+  for (const match of html.matchAll(/data-i18n(?:-aria-label)?="([A-Za-z0-9_]+)"/g)) {
     if (!messages[match[1]]) {
       throw new Error(`${page} references missing i18n key: ${match[1]}`);
     }

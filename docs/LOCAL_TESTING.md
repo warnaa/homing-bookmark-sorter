@@ -63,10 +63,18 @@ Open Nestmark's popup and select **Open settings**, then:
 
 1. Choose `Inbox` as the Inbox folder.
 2. Choose `Needs review` as the Needs review folder.
-3. Add an **Exact domain** rule for `developer.chrome.com` and choose
-   `Development` as its destination.
-4. Leave confidence at `100` and the global minimum at `80`.
-5. Save settings.
+3. In the new-rule row, type `developer.chrome.com` (the match type switches
+   to **Domain and subdomains**), choose `Development`, and press Enter.
+4. Leave the rule confidence at `100` and the global minimum at `80`.
+5. Save settings with **Save settings** or Ctrl+S.
+
+The new-rule row keeps the chosen destination after each rule, so several rules
+for one folder need only a value and Enter. Pasting a full URL keeps only its
+domain.
+
+Reorder rules by dragging the ⠿ handle. Pressing Escape during a drag restores
+the previous order. With the handle focused, the up and down arrow keys move the
+rule one position.
 
 If you create, rename, move, or remove bookmark folders while settings remain
 open, the folder choices update automatically without discarding unsaved rule
@@ -94,6 +102,9 @@ confidence, and time.
 
 Bookmark a page from another domain directly into `Inbox`. Confirm it moves to
 `Needs review` and appears in recent activity with “No rule matched.”
+
+In the popup, select **Create rule** on that activity entry. Settings open with
+the bookmark's domain in the new-rule row and the destination selector focused.
 
 ### Returning an item retries classification
 

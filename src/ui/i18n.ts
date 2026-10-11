@@ -11,4 +11,10 @@ export function localizeDocument(): void {
     const key = element.dataset.i18n;
     if (key) element.textContent = message(key);
   }
+  for (const element of document.querySelectorAll<HTMLElement>(
+    "[data-i18n-aria-label]",
+  )) {
+    const key = element.dataset.i18nAriaLabel;
+    if (key) element.setAttribute("aria-label", message(key));
+  }
 }

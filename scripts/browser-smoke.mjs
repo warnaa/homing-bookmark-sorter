@@ -1,4 +1,4 @@
-/* global chrome, document, Event, setTimeout, URL */
+/* global chrome, DataTransfer, document, DragEvent, Event, location, PointerEvent, setTimeout, URL */
 import assert from "node:assert/strict";
 import { access, mkdir } from "node:fs/promises";
 import path from "node:path";
@@ -177,14 +177,123 @@ try {
   );
   assert.equal(await page.$eval("#inbox-folder", (element) => element.value), ids.inbox);
   assert.equal(await page.$eval("#review-folder", (element) => element.value), ids.review);
+
+  // Quick add: type a value, keep the inferred match type, pick a folder, Enter.
+  await page.type("#new-rule-pattern", "news.example");
+  assert.equal(await page.$eval("#new-rule-type", (element) => element.value), "domain_suffix");
+  await page.select("#new-rule-destination", ids.development);
+  await page.focus("#new-rule-pattern");
+  await page.keyboard.press("Enter");
+  assert.equal(await page.$$eval(".rule-row", (rows) => rows.length), 2);
+  assert.equal(await page.$eval("#new-rule-pattern", (input) => input.value), "");
+  assert.equal(
+    await page.$eval("#new-rule-destination", (element) => element.value),
+    ids.development,
+  );
+  assert.equal(await page.$eval("#unsaved-indicator", (element) => element.hidden), false);
+
+  // A second rule for the same folder needs only a value and Enter.
+  await page.type("#new-rule-pattern", "https://example.com/docs/*");
+  assert.equal(await page.$eval("#new-rule-type", (element) => element.value), "url_pattern");
+  await page.keyboard.press("Enter");
+  assert.equal(await page.$$eval(".rule-row", (rows) => rows.length), 3);
+  const rulePatterns = () =>
+    page.$$eval(".rule-row .rule-pattern", (inputs) => inputs.map((input) => input.value));
+  assert.deepEqual(await rulePatterns(), [
+    "unsaved.example",
+    "news.example",
+    "https://example.com/docs/*",
+  ]);
+
+  // Keyboard reordering from the drag handle keeps focus on the moved rule.
+  await page.focus(".rule-row:nth-child(3) .rule-handle");
+  await page.keyboard.press("ArrowUp");
+  assert.deepEqual(await rulePatterns(), [
+    "unsaved.example",
+    "https://example.com/docs/*",
+    "news.example",
+  ]);
+  assert.equal(
+    await page.evaluate(() =>
+      document.activeElement?.closest(".rule-row")?.querySelector(".rule-pattern")?.value,
+    ),
+    "https://example.com/docs/*",
+  );
+
+  // Dragging the first rule's handle below the last row moves it to the end.
+  await page.setViewport({ width: 1280, height: 900 });
+  // A real mouse drag starts from the handle; Escape cancels it unchanged.
+  const handleBox = await (await page.$(".rule-row:nth-child(1) .rule-handle")).boundingBox();
+  const start = { x: handleBox.x + handleBox.width / 2, y: handleBox.y + handleBox.height / 2 };
+  await page.mouse.move(start.x, start.y);
+  await page.mouse.down();
+  await page.mouse.move(start.x, start.y + 40, { steps: 4 });
+  await page.waitForSelector(".rule-row--dragging", { timeout: 5_000 });
+  await page.keyboard.press("Escape");
+  await page.mouse.up();
+  await page.waitForFunction(() => !document.querySelector(".rule-row--dragging"), {
+    timeout: 5_000,
+  });
+  assert.deepEqual(await rulePatterns(), [
+    "unsaved.example",
+    "https://example.com/docs/*",
+    "news.example",
+  ]);
+
+  // Headless Chromium does not deliver native drops reliably, so replay the
+  // drag events the browser sends when the first rule is dropped at the end.
+  await page.evaluate(() => {
+    const rows = () => document.querySelectorAll(".rule-row");
+    const source = rows()[0];
+    const target = rows()[2];
+    const transfer = new DataTransfer();
+    const fire = (element, type, clientY) =>
+      element.dispatchEvent(
+        new DragEvent(type, { bubbles: true, cancelable: true, clientY, dataTransfer: transfer }),
+      );
+    source.querySelector(".rule-handle").dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
+    fire(source, "dragstart", 0);
+    const box = target.getBoundingClientRect();
+    fire(target, "dragover", box.bottom - 2);
+    fire(target, "drop", box.bottom - 2);
+    fire(source, "dragend", box.bottom - 2);
+  });
+  assert.deepEqual(await rulePatterns(), [
+    "https://example.com/docs/*",
+    "news.example",
+    "unsaved.example",
+  ]);
+
   await page.screenshot({
     path: path.join(artifactsPath, "options.png"),
     fullPage: true,
   });
 
+  // Leaving with unsaved rules asks for confirmation; accept it here.
+  page.once("dialog", (dialog) => dialog.accept());
+  // Rule suggestions from the popup open settings with the composer prefilled.
+  await page.goto(
+    `chrome-extension://${extensionId}/options.html?pattern=${encodeURIComponent("https://www.suggested.example/a")}`,
+  );
+  await page.waitForFunction(
+    () => document.querySelector("#new-rule-pattern")?.value === "suggested.example",
+  );
+  assert.equal(await page.$eval("#new-rule-type", (element) => element.value), "domain_suffix");
+  assert.equal(
+    await page.evaluate(() => document.activeElement?.id),
+    "new-rule-destination",
+  );
+  assert.equal(await page.evaluate(() => location.search), "");
+
   await page.goto(`chrome-extension://${extensionId}/popup.html`);
   await page.waitForSelector(".activity-item");
   assert.equal(await page.$$eval(".activity-item", (rows) => rows.length), 2);
+  assert.equal(
+    await page.$$eval(".activity-item .text-button", (buttons) =>
+      buttons.map((button) => button.textContent),
+    ).then((labels) => labels.filter((label) => label === "Create rule").length),
+    1,
+  );
   await page.screenshot({
     path: path.join(artifactsPath, "popup.png"),
     fullPage: true,

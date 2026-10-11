@@ -8,25 +8,21 @@
   </head>
   <body class="page">
     <main class="layout layout--wide">
-      <header class="hero">
+      <header class="page-header">
+        <span class="nestmark-mark nestmark-mark--small" aria-hidden="true">N</span>
         <div>
-          <p class="eyebrow" data-i18n="extensionName"></p>
           <h1 data-i18n="optionsHeading"></h1>
-          <p class="hero__copy" data-i18n="optionsIntroduction"></p>
+          <p class="page-header__copy" data-i18n="optionsIntroduction"></p>
         </div>
-        <span class="nestmark-mark" aria-hidden="true">N</span>
       </header>
 
       <form id="settings-form" novalidate>
         <section class="card" aria-labelledby="folders-heading">
           <div class="section-heading">
-            <div>
-              <h2 id="folders-heading" data-i18n="foldersHeading"></h2>
-              <p data-i18n="foldersDescription"></p>
-            </div>
-            <button id="refresh-folders" class="button button--secondary" type="button" data-i18n="refreshFoldersButton"></button>
+            <h2 id="folders-heading" data-i18n="foldersHeading"></h2>
+            <button id="refresh-folders" class="text-button" type="button" data-i18n="refreshFoldersButton"></button>
           </div>
-          <div class="field-grid">
+          <div class="setup-grid">
             <label class="field">
               <span data-i18n="inboxFolderLabel"></span>
               <select id="inbox-folder" required></select>
@@ -37,6 +33,14 @@
               <select id="review-folder" required></select>
               <small data-i18n="reviewFolderHelp"></small>
             </label>
+            <label class="field">
+              <span data-i18n="confidenceThresholdLabel"></span>
+              <span class="input-with-suffix">
+                <input id="confidence-threshold" type="number" min="0" max="100" step="1" required>
+                <span aria-hidden="true">%</span>
+              </span>
+              <small data-i18n="confidenceThresholdHelp"></small>
+            </label>
           </div>
           <label class="check-row">
             <input id="process-existing" type="checkbox">
@@ -44,32 +48,41 @@
           </label>
         </section>
 
-        <section class="card" aria-labelledby="behavior-heading">
-          <h2 id="behavior-heading" data-i18n="behaviorHeading"></h2>
-          <label class="field field--short">
-            <span data-i18n="confidenceThresholdLabel"></span>
-            <span class="input-with-suffix">
-              <input id="confidence-threshold" type="number" min="0" max="100" step="1" required>
-              <span aria-hidden="true">%</span>
-            </span>
-            <small data-i18n="confidenceThresholdHelp"></small>
-          </label>
-        </section>
-
         <section class="card" aria-labelledby="rules-heading">
           <div class="section-heading">
-            <div>
-              <h2 id="rules-heading" data-i18n="rulesHeading"></h2>
-              <p data-i18n="rulesDescription"></p>
-            </div>
-            <button id="add-rule" class="button button--secondary" type="button" data-i18n="addRuleButton"></button>
+            <h2 id="rules-heading">
+              <span data-i18n="rulesHeading"></span>
+              <span id="rules-count" class="count-badge"></span>
+            </h2>
+            <p class="section-heading__hint" data-i18n="rulesDescription"></p>
           </div>
+
+          <div class="rule-composer" role="group" data-i18n-aria-label="composerHeading">
+            <select id="new-rule-type" data-i18n-aria-label="ruleMatchTypeLabel"></select>
+            <input id="new-rule-pattern" type="text" autocomplete="off" spellcheck="false" data-i18n-aria-label="rulePatternLabel">
+            <span class="rule-arrow" aria-hidden="true">→</span>
+            <select id="new-rule-destination" data-i18n-aria-label="ruleDestinationLabel"></select>
+            <button id="add-rule" class="button button--primary" type="button" data-i18n="addRuleButton"></button>
+          </div>
+          <p id="composer-hint" class="composer-hint" data-i18n="composerHint"></p>
+
           <div id="rules-empty" class="empty-state" data-i18n="rulesEmpty"></div>
+          <div id="rules-header" class="rules-header" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span data-i18n="ruleMatchTypeLabel"></span>
+            <span data-i18n="rulePatternLabel"></span>
+            <span data-i18n="ruleConfidenceLabel"></span>
+            <span></span>
+            <span data-i18n="ruleDestinationLabel"></span>
+            <span></span>
+          </div>
           <ol id="rules-list" class="rules-list"></ol>
         </section>
 
-        <div id="settings-message" class="notice" role="status" aria-live="polite" hidden></div>
-        <div class="form-actions">
+        <div class="save-bar">
+          <div id="settings-message" class="save-bar__message" role="status" aria-live="polite" hidden></div>
+          <span id="unsaved-indicator" class="unsaved-pill" data-i18n="unsavedChangesLabel" hidden></span>
           <button class="button button--primary" type="submit" data-i18n="saveSettingsButton"></button>
         </div>
       </form>
