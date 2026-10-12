@@ -137,6 +137,9 @@ destination or to a visible Needs review folder.
   not overwrite a newer manual decision.
 - **FR-055** Activity history shall be stored locally, bounded by retention or
   record count, and clearable by the user.
+- **FR-056** Settings and the popup shall offer an email feedback link to
+  `damian@warna.pl`. It shall open a user-controlled email draft and shall not
+  automatically attach bookmark data, settings, or diagnostics.
 
 ### 3.7 Internationalization
 

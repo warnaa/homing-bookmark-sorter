@@ -65,12 +65,15 @@ try {
   const polishPage = await polishBrowser.newPage();
   await polishPage.goto(`chrome-extension://${polishId}/options.html`);
   await polishPage.waitForSelector("#add-rule");
+  assert.equal(await polishPage.$eval(".feedback-footer a", (element) => element.textContent), "Prześlij opinię");
+  assert.equal(await polishPage.$eval(".feedback-footer a", (element) => element.getAttribute("href")), "mailto:damian@warna.pl?subject=Homing");
   assert.equal(await polishPage.$eval("html", (element) => element.lang), "pl");
   assert.equal(await polishPage.$eval("h1", (element) => element.textContent), "Ustawienia Homing");
   assert.equal(await polishPage.$eval("#add-rule", (element) => element.textContent), "Dodaj regułę");
   await polishPage.setViewport({ width: 1280, height: 720 });
   await polishPage.screenshot({ path: path.join(artifactsPath, "options-pl.png") });
   await polishPage.goto(`chrome-extension://${polishId}/popup.html`);
+  assert.equal(await polishPage.$eval(".feedback-footer a", (element) => element.textContent), "Prześlij opinię");
   assert.equal(
     await polishPage.$eval("#activity-heading", (element) => element.textContent),
     "Ostatnia aktywność",
@@ -187,10 +190,14 @@ try {
   });
 
   await page.goto(`chrome-extension://${extensionId}/options.html`);
+  await page.waitForSelector("#add-rule");
+  assert.equal(await page.$eval(".feedback-footer a", (element) => element.textContent), "Send feedback");
   await page.waitForSelector(".rule-row");
   assert.equal(await page.$eval("#inbox-folder", (element) => element.value), ids.inbox);
   assert.equal(await page.$eval("#review-folder", (element) => element.value), ids.review);
   assert.equal(await page.$$eval(".rule-row", (rows) => rows.length), 1);
+  await page.setViewport({ width: 1280, height: 800 });
+  await page.screenshot({ path: path.join(artifactsPath, "store-settings-en.png") });
 
   await page.$eval(".rule-row input[type='text']", (input) => {
     input.value = "unsaved.example";
@@ -322,6 +329,7 @@ try {
   assert.equal(await page.evaluate(() => location.search), "");
 
   await page.goto(`chrome-extension://${extensionId}/popup.html`);
+  assert.equal(await page.$eval(".feedback-footer a", (element) => element.getAttribute("href")), "mailto:damian@warna.pl?subject=Homing");
   await page.waitForSelector(".activity-item");
   assert.equal(await page.$$eval(".activity-item", (rows) => rows.length), 2);
   assert.equal(

@@ -1,4 +1,6 @@
 {
+  "sendFeedbackLink": { "message": "Prześlij opinię", "description": "Odnośnik do napisania opinii przez e-mail." },
+  "feedbackHelp": { "message": "Napisz na damian@warna.pl. Dane zakładek nie są dołączane automatycznie.", "description": "Adres do przesyłania opinii i informacja o prywatności." },
   "extensionName": { "message": "Homing - sortowanie zakładek", "description": "Extension name." },
   "extensionShortName": { "message": "Homing", "description": "Short extension name." },
   "extensionDescription": { "message": "Porządkuje zakładki z jednej Skrzynki do wybranych przez Ciebie folderów.", "description": "Extension description." },

@@ -1,4 +1,6 @@
 {
+  "sendFeedbackLink": { "message": "Send feedback", "description": "Link to compose feedback by email." },
+  "feedbackHelp": { "message": "Email damian@warna.pl. No bookmark data is attached automatically.", "description": "Feedback destination and privacy explanation." },
   "extensionName": { "message": "Homing - bookmark sorter", "description": "Extension name." },
   "extensionShortName": { "message": "Homing", "description": "Short extension name." },
   "extensionDescription": { "message": "Sort bookmarks from one Inbox into folders you choose.", "description": "Extension description." },

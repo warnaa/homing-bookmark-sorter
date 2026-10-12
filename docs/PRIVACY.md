@@ -1,8 +1,20 @@
 # Privacy and permission rationale
 
-Homing's local-install MVP performs all processing inside the browser
+Homing performs all bookmark processing inside the browser
 extension. It has no analytics, telemetry, remote API, account system, or
-network destination.
+automated network destination.
+
+Last updated: 2026-10-12.
+
+## Voluntary feedback
+
+The settings page and popup offer an email link to `damian@warna.pl`. It opens
+your email application with the subject Homing. Homing does not attach bookmark
+data, settings, or diagnostics and does not send the message itself. If you
+choose to send feedback, Damian receives your email address and the content you
+choose to include, and uses it to respond and improve Homing. You can request
+deletion by emailing the same address. Your email provider processes the
+message under its own privacy terms.
 
 ## Data handled
 

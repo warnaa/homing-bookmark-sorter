@@ -10,6 +10,8 @@
     "clean": "node scripts/clean.mjs",
     "generate:icons": "node scripts/generate-icons.mjs",
     "lint": "eslint .",
+    "package": "npm run build && npm run validate:build && python scripts/package.py",
+    "version:set": "node scripts/set-version.mjs",
     "test": "vitest run --pool=threads --maxWorkers=1",
     "test:browser": "npm run build && node scripts/browser-smoke.mjs",
     "test:watch": "vitest",

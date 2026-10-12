@@ -4,7 +4,7 @@
 
 **Bookmarks that find their own way home.**
 
-Homing is a planned browser extension that watches one user-selected bookmark
+Homing is a browser extension that watches one user-selected bookmark
 folder, classifies bookmarks arriving there, and moves them to user-selected
 destination folders. Bookmarks saved anywhere else are treated as intentional
 and are never reorganized.
@@ -31,6 +31,7 @@ Current capabilities:
 - Explain recent decisions and offer a safe 10-minute Undo.
 - Keep all extension data local.
 - Show the UI in English or Polish, following the browser language.
+- Offer voluntary email feedback to damian@warna.pl.
 
 ## Product principles
 
@@ -87,6 +88,12 @@ npm run test:browser
 
 See [Local testing](docs/LOCAL_TESTING.md) for installation in Chrome, Edge, or
 Brave and a complete manual acceptance walkthrough.
+
+## Publishing
+
+Run `npm run package` (requires Python 3 as well as Node) to build and validate
+`build/homing-1.0.0.zip`. See [Publishing](docs/PUBLISHING.md) for first-time
+Chrome Web Store setup and the GitHub workflow for later releases.
 
 ## License
 

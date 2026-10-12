@@ -70,3 +70,26 @@ outside version control.
 - Chrome Web Store packaging and publication were not requested or tested.
 - Import suppression is covered by coordinator integration tests; a real
   browser bookmark-import UI flow was not automated.
+
+## Feedback and release preparation on 2026-10-12
+
+- `npm ci` installed dependencies and reported zero known vulnerabilities.
+- `npm run check` passed: strict types, ESLint, 38 tests in nine files, build,
+  and validation of 25 packaged files with English/Polish locales.
+- `npm run test:browser` passed in Google Chrome 155.0.8059.39 using isolated
+  temporary profiles. Added assertions cover feedback text in both locales
+  and the fixed recipient/subject in both pages. No email was sent.
+- The first browser launch was blocked by Windows `spawn EPERM`; the same
+  command passed on a permitted sandbox retry.
+- `npm run package` built and inspected `build/homing-1.0.0.zip` with the
+  manifest at the root and aligned package/manifest versions.
+- The API tests use synthetic credentials and simulated HTTP responses;
+  they verify missing credentials, draft-only upload, asynchronous success,
+  failed/unknown uploads, polling timeout, review submission, and redacted
+  HTTP errors. No live Google API requests were made.
+- A 1280×800 settings screenshot with synthetic bookmarks was generated and
+  inspected. Edge was not rerun for this follow-up.
+- The 440×280 promotional tile was generated with
+  `powershell -NoProfile -File scripts/generate-store-art.ps1` and inspected.
+- Hosted GitHub Actions, developer registration, public privacy-policy hosting,
+  store submission/review, and store installation/upgrades remain unverified.

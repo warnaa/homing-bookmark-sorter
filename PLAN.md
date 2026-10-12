@@ -140,6 +140,15 @@ Completed on 2026-09-24 for the local-install MVP:
   Chrome and Edge browser smoke tests, icons, permission documentation, and a
   local testing guide are present.
 - Chrome Web Store publication assets and submission remain intentionally out
-  of scope because no store publication was requested.
+  of scope in that original local-install completion record.
 - Content extraction, AI classification, and Firefox support remain post-MVP
   candidates.
+
+## Store publication follow-up
+
+Requested on 2026-10-12: voluntary email feedback, a first Chrome Web Store
+release, and repeatable updates. Packaging, store copy, and GitHub workflows
+are prepared. First publication remains pending developer-account registration,
+listing setup, public privacy-policy hosting, store imagery, and Google review.
+Live API submission and hosted GitHub workflow execution require account setup
+and are not covered by local automated tests.

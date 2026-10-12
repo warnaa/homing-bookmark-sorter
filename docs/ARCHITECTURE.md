@@ -73,6 +73,8 @@ bookmark tree is always re-read before mutation.
 - Popup/activity: recent outcomes, actionable errors, available Undo, and a
   shortcut that opens Options with a rule suggested from a reviewed bookmark.
 - Toolbar badge: unresolved operational/configuration error count.
+- Settings and popup: voluntary `mailto:` feedback; only a fixed subject is
+  prefilled. The mail handler owns composition and sending.
 
 ## Persisted models
 

@@ -1,0 +1,84 @@
+name: Release extension
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing version tag (for example v1.0.1)
+        required: true
+        type: string
+      mode:
+        description: Package only, upload draft, or submit for review
+        type: choice
+        default: package
+        options: [package, upload, publish]
+permissions:
+  contents: read
+concurrency:
+  group: chrome-web-store-release
+  cancel-in-progress: false
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      revision: ${{ steps.version.outputs.revision }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - run: npm ci
+      - name: Validate tag and version
+        id: version
+        env:
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          git show-ref --verify --quiet "refs/tags/$RELEASE_TAG"
+          echo "revision=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          node --input-type=module <<'NODE'
+          import { readFileSync, appendFileSync } from 'node:fs';
+          const version = JSON.parse(readFileSync('package.json')).version;
+          if (process.env.RELEASE_TAG !== `v${version}`) throw new Error('Tag must match package version');
+          appendFileSync(process.env.GITHUB_OUTPUT, `version=${version}\n`);
+          NODE
+      - run: npm run check
+      - run: npm run package
+      - uses: actions/upload-artifact@v4
+        with:
+          name: homing-${{ steps.version.outputs.version }}
+          path: build/homing-${{ steps.version.outputs.version }}.zip
+          if-no-files-found: error
+  store:
+    if: github.event_name == 'workflow_dispatch' && inputs.mode != 'package'
+    needs: package
+    runs-on: ubuntu-latest
+    environment: chrome-web-store
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.package.outputs.revision }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: actions/download-artifact@v4
+        with:
+          name: homing-${{ needs.package.outputs.version }}
+          path: build
+      - name: Upload or submit to Chrome Web Store
+        env:
+          CWS_PUBLISHER_ID: ${{ vars.CWS_PUBLISHER_ID }}
+          CWS_EXTENSION_ID: ${{ vars.CWS_EXTENSION_ID }}
+          CWS_CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
+          CWS_CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
+          CWS_REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
+          RELEASE_VERSION: ${{ needs.package.outputs.version }}
+          RELEASE_MODE: ${{ inputs.mode }}
+        run: node scripts/chrome-store.mjs "build/homing-${RELEASE_VERSION}.zip" "$RELEASE_MODE"

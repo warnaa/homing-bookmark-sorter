@@ -166,3 +166,19 @@ A check on 2026-10-11 found:
 The risk of confusion is judged low for a free bookmark extension with a
 descriptive store name. Paid distribution or registering a Homing mark would
 need professional trademark advice first.
+
+## D-016: Offer voluntary email feedback and prepare store releases
+
+- Date: 2026-10-12
+- Status: Accepted
+
+Settings and the popup offer a localized feedback link to `damian@warna.pl`.
+It opens the user's mail handler with the subject Homing. The user chooses what
+to write and whether to send; no bookmark data or diagnostics are attached.
+This adds no extension permissions or automated network requests.
+
+Chrome Web Store publication is now in scope. The first listing is created in
+the developer dashboard. Version tags build validated ZIP artifacts; a manually
+selected GitHub workflow mode can upload a draft or submit an update for review
+through the official v2 API. Publishing credentials stay in GitHub environment
+secrets and never enter the extension. Google review remains required.

@@ -646,6 +646,18 @@ button:focus-visible {
   text-align: center;
 }
 
+.feedback-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 16px 0;
+}
+
+.feedback-footer a {
+  color: var(--accent, #2b6352);
+}
+
 [hidden] {
   display: none !important;
 }
