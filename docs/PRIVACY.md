@@ -22,7 +22,7 @@ Homing reads:
 
 - Bookmark IDs, parent folder IDs, titles, and URLs for bookmarks entering the
   configured Inbox.
-- The bookmark folder tree so the user can select Inbox, Needs review, and rule
+- The bookmark folder tree so the user can select the Inbox and rule
   destinations.
 - Its own local settings, pending work, recent activity, and reported problems.
 
@@ -31,8 +31,9 @@ page content. It does not translate or modify bookmark titles.
 
 ## Permissions
 
-- `bookmarks`: observe direct Inbox arrivals, display folder choices, and move
-  classified bookmarks.
+- `bookmarks`: observe direct Inbox arrivals, display folder choices, move
+  classified bookmarks, and briefly create and remove a temporary folder in the
+  Inbox so it stays the browser's default save folder.
 - `storage`: persist local settings, restart-safe work attempts, up to 100 recent
   activity records, and operational problems.
 - `alarms`: wake the Manifest V3 service worker periodically to reconcile work

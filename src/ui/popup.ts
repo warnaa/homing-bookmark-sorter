@@ -31,10 +31,17 @@ interface FolderNames {
   titles: Map<string, string>;
 }
 
-type ActivityStatus = "moved" | "review" | "failed" | "cancelled" | "undone";
+type ActivityStatus =
+  | "moved"
+  | "unsorted"
+  | "review"
+  | "failed"
+  | "cancelled"
+  | "undone";
 
 const STATUS_ICONS: Record<ActivityStatus, string> = {
   moved: "✓",
+  unsorted: "?",
   review: "?",
   failed: "!",
   cancelled: "↷",
@@ -55,6 +62,8 @@ function activitySummary(record: ActivityRecord, folders: FolderNames): string {
       return message("activityMoved", folderPath(record.toFolderId, folders));
     case "undone":
       return message("activityUndone");
+    case "unsorted":
+      return message("activityLeftInInbox", folderPath(record.fromFolderId, folders));
     case "review":
       return message("activityNeedsReview", folderPath(record.toFolderId, folders));
     case "failed":
@@ -167,7 +176,7 @@ ${fullTime.format(record.occurredAt)}`;
 
     const actions = document.createElement("span");
     actions.className = "activity-item__actions";
-    if (record.outcome === "review") {
+    if (record.outcome === "unsorted" || record.outcome === "review") {
       actions.append(createRuleButton(record));
     }
 
@@ -250,9 +259,7 @@ async function load(): Promise<void> {
     paths: new Map(folders.map((folder) => [folder.id, folder.path])),
     titles: new Map(folders.map((folder) => [folder.id, folder.title])),
   };
-  setupPanel.hidden = Boolean(
-    state.settings.inboxFolderId && state.settings.reviewFolderId,
-  );
+  setupPanel.hidden = Boolean(state.settings.inboxFolderId);
   renderProblems(state.problems);
   renderActivity(state.activity, names);
 }

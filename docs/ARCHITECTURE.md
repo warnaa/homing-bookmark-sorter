@@ -25,8 +25,8 @@ Browser bookmark events
       |            |
       | valid      | user moved/deleted item
       v            v
- Destination /    cancel without overriding user
- Needs review
+ Destination, or  cancel without overriding user
+ stay in Inbox
 ```
 
 ## Components
@@ -35,13 +35,14 @@ Browser bookmark events
 
 Owns calls to bookmarks, storage, runtime, i18n, and action/badge APIs. It should
 expose application-oriented operations so the classifier and coordinator do
-not depend directly on Chromium callback shapes.
+not depend directly on Chromium callback shapes. One such operation marks the
+Inbox as the most recently modified folder after a sort (D-018).
 
 ### Inbox event filter
 
 Accepts creation and movement events only when a URL bookmark becomes a direct
-child of the configured Inbox. It suppresses imports, folder events, and
-correlated extension moves.
+child of the configured Inbox. It suppresses imports, folder events, reordering
+within one folder, and correlated extension moves.
 
 ### Work coordinator
 
@@ -71,7 +72,8 @@ bookmark tree is always re-read before mutation.
 
 - Options: folder selection, rule editing, threshold behavior, history controls.
 - Popup/activity: recent outcomes, actionable errors, available Undo, and a
-  shortcut that opens Options with a rule suggested from a reviewed bookmark.
+  shortcut that opens Options with a rule suggested from a bookmark left in
+  the Inbox.
 - Toolbar badge: unresolved operational/configuration error count.
 - Settings and popup: voluntary `mailto:` feedback; only a fixed subject is
   prefilled. The mail handler owns composition and sending.
@@ -85,7 +87,6 @@ concepts in `storage.local`:
 Settings
   schemaVersion
   inboxFolderId
-  reviewFolderId
   confidenceThreshold
   orderedRules[]
 
@@ -129,8 +130,10 @@ need justifies retention.
 5. Run the classifier using current rules.
 6. Re-read the bookmark and configured folder targets.
 7. Cancel if the bookmark disappeared or no longer has the Inbox as parent.
-8. Move to the confident destination, or to Needs review.
+8. Move to the confident destination. Otherwise leave the bookmark in the
+   Inbox.
 9. Persist the outcome, remove the pending attempt, and refresh error UI.
+10. After a move, make the Inbox the browser's default save folder again.
 
 Steps must be restart-safe. Repeating a step after suspension must converge on
 the same state rather than duplicating bookmark nodes.
@@ -154,6 +157,9 @@ save flow, optional host permissions, or reduced metadata-only behavior.
 - Extension-generated moves can produce events that resemble user actions.
 - The service worker may stop between any two asynchronous operations.
 - Managed bookmark nodes may be visible but not writable.
+- The temporary folders used to restore the default save folder are visible
+  to bookmark sync and other extensions, and can remain if the browser stops
+  mid-step.
 
 These risks require fixtures and event-sequence tests before release, not only
 unit tests of the classifier.

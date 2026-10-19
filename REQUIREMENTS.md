@@ -2,20 +2,23 @@
 
 Status: MVP implemented
 
-Last updated: 2026-09-24
+Last updated: 2026-10-19
 
 ## 1. Purpose
 
 Homing reduces bookmark filing work without taking control of the complete
 bookmark tree. It treats one configured folder as an Inbox, classifies URL
-bookmarks entering that folder, and moves them either to a configured
-destination or to a visible Needs review folder.
+bookmarks entering that folder, and moves confidently classified bookmarks to a
+configured destination. Everything else stays in the Inbox for the user to sort
+by hand.
 
 ## 2. Terminology
 
 - **Inbox**: the single bookmark folder watched for bookmarks to classify.
-- **Needs review**: the folder receiving bookmarks that cannot be classified
-  confidently or cannot be processed successfully.
+- **Unsorted bookmark**: a bookmark Homing left in the Inbox because it could
+  not be classified confidently or could not be processed successfully.
+- **Default save folder**: the folder the browser's bookmark dialog proposes
+  for a newly saved bookmark.
 - **Destination**: any writable bookmark folder selected as the target of a
   classification rule.
 - **Rule**: a user-configured mapping from matching conditions to a destination.
@@ -31,11 +34,10 @@ destination or to a visible Needs review folder.
 
 - **FR-001** Homing shall let the user select exactly one existing, writable
   bookmark folder as the Inbox.
-- **FR-002** Homing shall let the user select exactly one existing, writable
-  bookmark folder as Needs review.
-- **FR-003** The Inbox and Needs review folders shall be different.
+- **FR-002** Withdrawn by D-017: there is no separate Needs review folder.
+- **FR-003** Withdrawn by D-017.
 - **FR-004** The Inbox and any folder inside it shall not be valid
-  classification destinations, including Needs review.
+  classification destinations.
 - **FR-005** A rule destination may be any other writable folder in the
   bookmark tree. Destinations do not need to share a common parent.
 - **FR-006** The settings UI shall display a folder's current breadcrumb path,
@@ -56,8 +58,8 @@ destination or to a visible Needs review folder.
 - **FR-010** Homing shall process URL bookmarks created directly in the
   configured Inbox.
 - **FR-011** Homing shall process URL bookmarks manually moved directly into
-  the configured Inbox, including bookmarks returned from Needs review for a
-  retry.
+  the configured Inbox from another folder, including bookmarks moved out of
+  the Inbox and back for a retry.
 - **FR-012** Homing shall not process bookmarks created or moved into any
   other folder.
 - **FR-013** Homing shall not recursively watch subfolders of the Inbox.
@@ -70,6 +72,8 @@ destination or to a visible Needs review folder.
 - **FR-017** When the user first selects a non-empty Inbox, Homing shall offer
   an explicit choice between processing existing direct-child bookmarks and
   watching only future arrivals.
+- **FR-018** Reordering bookmarks within the Inbox shall not start a
+  classification attempt.
 
 ### 3.3 Classification
 
@@ -96,18 +100,24 @@ destination or to a visible Needs review folder.
   Inbox.
 - **FR-031** On a confident result, Homing shall move the bookmark to the
   selected destination.
-- **FR-032** If no result meets the confidence threshold, Homing shall move
-  the bookmark to Needs review.
-- **FR-033** If classification fails technically, Homing shall move the
-  bookmark to Needs review when that folder is available and shall record a
+- **FR-032** If no result meets the confidence threshold, Homing shall leave
+  the bookmark in the Inbox and record the reason in recent activity.
+- **FR-033** If classification or the move fails technically, Homing shall
+  leave the bookmark in the Inbox, report the problem, and record a
   non-sensitive failure reason locally.
-- **FR-034** If Needs review is unavailable, Homing shall leave the bookmark
-  in the Inbox and surface an actionable configuration error.
-- **FR-035** Bookmarks added directly to Needs review shall not be classified.
-- **FR-036** Moving a bookmark from Needs review into the Inbox shall request a
-  fresh classification attempt.
+- **FR-034** If a rule destination is missing or unwritable, Homing shall leave
+  the bookmark in the Inbox and surface an actionable configuration error.
+- **FR-035** Withdrawn by D-017.
+- **FR-036** A bookmark left in the Inbox shall be classified again when it is
+  moved out of the Inbox and back, or when the user chooses to sort existing
+  Inbox bookmarks while saving settings. Opening settings from a rule
+  suggestion shall preselect that choice.
 - **FR-037** Homing shall not alter bookmark titles to encode processing
   state.
+- **FR-038** After Homing moves a bookmark out of the Inbox, it shall make the
+  Inbox the browser's default save folder again. It may do so only with
+  temporary folders inside the Inbox that it removes immediately. A failure
+  shall not change the sorting outcome or be reported as a problem.
 
 ### 3.5 Concurrency and recovery
 
@@ -125,13 +135,13 @@ destination or to a visible Needs review folder.
 
 ### 3.6 User interface and auditability
 
-- **FR-050** Homing shall provide a settings interface for selecting Inbox,
-  Needs review, destinations, rules, and confidence behavior.
+- **FR-050** Homing shall provide a settings interface for selecting the
+  Inbox, destinations, rules, and confidence behavior.
 - **FR-051** Homing shall provide a recent-activity view showing the outcome,
   destination or failure reason, matched rule, and timestamp.
 - **FR-052** The extension toolbar badge shall show the number of unresolved
-  configuration or processing problems, not the total number of bookmarks in
-  Needs review.
+  configuration or processing problems, not the number of bookmarks waiting in
+  the Inbox.
 - **FR-053** A successful automatic move shall offer Undo for a bounded period.
 - **FR-054** Undo shall return the bookmark to the Inbox only if doing so would
   not overwrite a newer manual decision.
@@ -173,7 +183,7 @@ destination or to a visible Needs review folder.
 ## 4. Non-functional requirements
 
 - **NFR-001 Reliability:** every detected Inbox arrival shall reach one durable
-  state: pending, moved, needs review, cancelled by user action, or blocked by a
+  state: pending, moved, left in the Inbox, cancelled by user action, or blocked by a
   reported configuration error.
 - **NFR-002 Performance:** URL/title rule evaluation should normally complete
   within 250 ms, excluding browser API scheduling and optional remote work.
@@ -194,7 +204,7 @@ destination or to a visible Needs review folder.
 The MVP includes:
 
 - Chrome and Edge support.
-- Inbox and Needs review folder selection.
+- Inbox folder selection.
 - Destination selection from the complete writable bookmark tree.
 - Exact-domain, domain-suffix, URL-pattern, and title-keyword rules.
 - Deterministic priority and confidence handling.
@@ -216,11 +226,13 @@ The MVP excludes:
 1. A bookmark added to a non-Inbox folder remains untouched.
 2. A bookmark added to the Inbox and matching a domain rule moves to that
    rule's destination anywhere in the writable bookmark tree.
-3. A bookmark matching no sufficiently confident rule moves to Needs review.
-4. A processing error moves the bookmark to Needs review and appears in recent
+3. A bookmark matching no sufficiently confident rule stays in the Inbox.
+4. A processing error leaves the bookmark in the Inbox and appears in recent
    activity with a useful, non-sensitive reason.
-5. A bookmark placed directly in Needs review remains untouched.
-6. Moving a Needs review bookmark back to the Inbox retries classification.
+5. After Homing sorts a bookmark, the browser's bookmark dialog proposes the
+   Inbox for the next saved bookmark.
+6. Moving an unsorted bookmark out of the Inbox and back retries
+   classification; reordering it within the Inbox does not.
 7. A bookmark manually moved out of the Inbox during classification remains in
    the manually selected folder.
 8. Renaming or moving a destination folder preserves rules that reference its

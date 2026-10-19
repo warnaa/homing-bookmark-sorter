@@ -32,28 +32,10 @@ export function validateSettings(
 ): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
   const inbox = folders.get(settings.inboxFolderId);
-  const review = folders.get(settings.reviewFolderId);
 
   if (!settings.inboxFolderId) issues.push({ code: "inbox_required" });
   else if (!inbox) issues.push({ code: "inbox_missing" });
   else if (!isWritableFolder(inbox)) issues.push({ code: "inbox_unwritable" });
-
-  if (!settings.reviewFolderId) issues.push({ code: "review_required" });
-  else if (!review) issues.push({ code: "review_missing" });
-  else if (!isWritableFolder(review)) issues.push({ code: "review_unwritable" });
-
-  if (
-    settings.inboxFolderId &&
-    settings.reviewFolderId === settings.inboxFolderId
-  ) {
-    issues.push({ code: "same_inbox_and_review" });
-  } else if (
-    settings.inboxFolderId &&
-    settings.reviewFolderId &&
-    isFolderInside(settings.reviewFolderId, settings.inboxFolderId, folders)
-  ) {
-    issues.push({ code: "review_inside_inbox" });
-  }
 
   if (
     !Number.isInteger(settings.confidenceThreshold) ||

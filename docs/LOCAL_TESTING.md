@@ -45,28 +45,26 @@ the Homing card.
 
 ## Configure a test setup
 
-Create at least four ordinary bookmark folders using the browser's bookmark
+Create at least three ordinary bookmark folders using the browser's bookmark
 manager:
 
 ```text
 Homing test
 ├── Inbox
-├── Needs review
 ├── Development
 └── Personal
 ```
 
-The names and hierarchy are only examples. Destination and Needs review folders
-can be anywhere writable outside the Inbox.
+The names and hierarchy are only examples. Destination folders can be anywhere
+writable outside the Inbox.
 
 Open Homing's popup and select the settings (⚙) button, then:
 
 1. Choose `Inbox` as the Inbox folder.
-2. Choose `Needs review` as the Needs review folder.
-3. In the new-rule row, type `developer.chrome.com` (the match type switches
+2. In the new-rule row, type `developer.chrome.com` (the match type switches
    to **Domain and subdomains**), choose `Development`, and press Enter.
-4. Leave the rule confidence at `100` and the global minimum at `80`.
-5. Save settings with **Save settings** or Ctrl+S.
+3. Leave the rule confidence at `100` and the global minimum at `80`.
+4. Save settings with **Save settings** or Ctrl+S.
 
 The new-rule row keeps the chosen destination after each rule, so several rules
 for one folder need only a value and Enter. Pasting a full URL keeps only its
@@ -81,7 +79,8 @@ open, the folder choices update automatically without discarding unsaved rule
 or form changes. **Refresh folders** is available as a manual fallback.
 
 The optional checkbox processes bookmarks that were already direct children of
-the Inbox. Leave it clear when you want to test only new arrivals.
+the Inbox. Leave it clear when you want to test only new arrivals. Check it
+after adding rules to sort bookmarks that were left in the Inbox.
 
 ## Run the manual acceptance checks
 
@@ -98,19 +97,25 @@ confirm it moves to `Development`.
 Open the Homing popup. Recent activity should identify the destination, rule
 confidence, and time.
 
-### An unmatched bookmark needs review
+### The Inbox stays the default save folder
 
-Bookmark a page from another domain directly into `Inbox`. Confirm it moves to
-`Needs review` and appears in recent activity with “No rule matched.”
+Right after that move, bookmark another page with the star button. The dialog
+should propose `Inbox`, not `Development`.
+
+### An unmatched bookmark stays in the Inbox
+
+Bookmark a page from another domain directly into `Inbox`. Confirm it stays in
+`Inbox` and appears in recent activity with “No rule matched.”
 
 In the popup, select **Create rule** on that activity entry. Settings open with
-the bookmark's domain in the new-rule row and the destination selector focused.
+the bookmark's domain in the new-rule row, the destination selector focused,
+and the option to sort bookmarks already in the Inbox checked. Add the rule and
+save: the bookmark moves to the new destination.
 
 ### Returning an item retries classification
 
-Move a bookmark from `Needs review` back to `Inbox`. Homing should make a new
-classification attempt. It will return to Needs review until a matching rule is
-added.
+Move an unsorted bookmark out of `Inbox` and back. Homing should make a new
+classification attempt. Reordering it within `Inbox` does not.
 
 ### Undo is safe
 
@@ -124,8 +129,8 @@ must refuse the stale Undo rather than override the newer placement.
 ### Folder problems are visible
 
 Delete a configured test destination. Homing should show a toolbar badge and
-an actionable problem in the popup. Affected Inbox bookmarks go to Needs review
-instead of a similarly named guessed folder.
+an actionable problem in the popup. Affected Inbox bookmarks stay in the Inbox
+instead of going to a similarly named guessed folder.
 
 ## Check the translation
 
@@ -150,13 +155,14 @@ decision.
 - **Title contains:** case-insensitive text contained in the bookmark title.
 
 If the first matching rule's confidence is below the global minimum, the
-bookmark goes to Needs review. Lower-priority rules are not considered.
+bookmark stays in the Inbox. Lower-priority rules are not considered.
 
 ## Run the automated Chromium smoke test
 
 The smoke test launches the built extension in an isolated temporary browser
 profile, so it does not touch bookmarks in your normal profile. It verifies the
-settings UI, activity UI, watch boundary, matching destination, Needs review,
+settings UI, activity UI, watch boundary, matching destination, unsorted
+bookmarks staying in the Inbox, the Inbox remaining the default save folder,
 and Undo. It also starts a Polish browser to confirm the UI follows the browser
 language; the main run forces English with `--lang=en-US`.
 

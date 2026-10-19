@@ -143,7 +143,7 @@ h2 {
 
 .setup-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 150px;
+  grid-template-columns: minmax(0, 1fr) 150px;
   gap: 16px;
 }
 
@@ -535,6 +535,7 @@ button:focus-visible {
   background: #3f7a52;
 }
 
+.activity-item--unsorted .status-icon,
 .activity-item--review .status-icon {
   color: #6f4c06;
   background: #ffe7a6;

@@ -29,7 +29,7 @@ chrome.bookmarks.onCreated.addListener((_id, node) => {
 });
 
 chrome.bookmarks.onMoved.addListener((id, moveInfo) => {
-  coordinator.handleMoved(id, moveInfo.parentId);
+  coordinator.handleMoved(id, moveInfo.parentId, moveInfo.oldParentId);
 });
 
 chrome.bookmarks.onRemoved.addListener((id) => {

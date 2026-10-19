@@ -9,10 +9,10 @@ folder, classifies bookmarks arriving there, and moves them to user-selected
 destination folders. Bookmarks saved anywhere else are treated as intentional
 and are never reorganized.
 
-When Homing cannot choose a destination confidently, it moves the bookmark to
-a separately configured **Needs review** folder. Both classification
-destinations and the review folder may live anywhere writable in the browser's
-bookmark tree.
+When Homing cannot choose a destination confidently, it leaves the bookmark in
+the Inbox for you to sort by hand. Destinations may live anywhere writable in
+the browser's bookmark tree. After each sort, the browser's bookmark dialog
+still proposes the Inbox for the next bookmark you save.
 
 ## Project status
 
@@ -24,7 +24,7 @@ Current capabilities:
 
 - Watch exactly one selected Inbox folder.
 - Route matching bookmarks to any writable bookmark folder.
-- Send uncertain or failed attempts to a selected Needs review folder.
+- Leave uncertain or failed attempts in the Inbox for manual sorting.
 - Match exact domains, domains with subdomains, wildcard URLs, and title text.
 - Preserve deliberate placement outside the Inbox and later manual moves.
 - Recover unfinished work after service-worker suspension.
@@ -37,7 +37,7 @@ Current capabilities:
 
 - Only the configured Inbox is automated.
 - A user's explicit folder choice is respected.
-- Uncertainty is visible, recoverable, and routed to Needs review.
+- Uncertainty is visible, recoverable, and left in the Inbox.
 - Rules are deterministic and explainable before optional AI is introduced.
 - Page access and external processing are opt-in.
 - User-facing text is localization-ready from the first implementation.

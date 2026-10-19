@@ -35,7 +35,7 @@ duplicate names.
 ## D-004: Use a visible Needs review folder
 
 - Date: 2026-09-24
-- Status: Accepted
+- Status: Superseded by D-017
 
 Uncertain and technically failed attempts move to a separately configured Needs
 review folder. The bookmark tree therefore exposes unresolved results without
@@ -182,3 +182,45 @@ the developer dashboard. Version tags build validated ZIP artifacts; a manually
 selected GitHub workflow mode can upload a draft or submit an update for review
 through the official v2 API. Publishing credentials stay in GitHub environment
 secrets and never enter the extension. Google review remains required.
+
+## D-017: Leave unsorted bookmarks in the Inbox
+
+- Date: 2026-10-19
+- Status: Accepted; supersedes D-004
+
+Homing no longer has a Needs review folder. A bookmark that no rule sorts
+confidently, whose rule destination is unavailable, or whose processing or
+move fails stays in the Inbox. Recent activity records it as unsorted or
+failed, and technical or configuration failures still raise a badge problem.
+A separate folder only relocated the backlog; the Inbox is already where the
+user expects unfiled bookmarks.
+
+Because unsorted bookmarks now remain in the Inbox, reordering bookmarks within
+the Inbox is no longer treated as an arrival. To retry, the user moves a
+bookmark out and back, or chooses to sort existing Inbox bookmarks when saving
+settings. Opening settings from an activity entry's Create rule button
+preselects that choice. Stored settings lose their `reviewFolderId`, and stored
+Needs review problems are discarded. Older activity entries keep their original
+"Sent to" wording.
+
+## D-018: Keep the Inbox as the default save folder
+
+- Date: 2026-10-19
+- Status: Accepted
+
+Chromium's bookmark dialog proposes the most recently modified folder, and
+moving a bookmark marks its new parent as modified. Without a correction, every
+automatic move made the destination the default for the next saved bookmark.
+
+After each completed move out of the Inbox, Homing creates a temporary folder
+inside the Inbox and a second one inside that, moves the inner folder up into
+the Inbox, and removes both. Creating a folder does not mark its parent as
+modified, but the move does, so the Inbox becomes the default again. This
+leaves no lasting change, and no other node in the bookmark tree is touched.
+The step is best effort: failures are ignored and do not change the recorded
+outcome.
+
+Tradeoffs: the temporary folders produce bookmark events that other extensions
+and bookmark sync can observe. If the browser stops mid-step, a folder named
+"Homing (temporary)" can remain in the Inbox. Homing ignores folder nodes, so
+it never sorts such a folder, and the user can delete it.

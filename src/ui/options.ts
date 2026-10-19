@@ -39,7 +39,6 @@ function requiredElement<T extends HTMLElement>(id: string): T {
 
 const form = requiredElement<HTMLFormElement>("settings-form");
 const inboxSelect = requiredElement<HTMLSelectElement>("inbox-folder");
-const reviewSelect = requiredElement<HTMLSelectElement>("review-folder");
 const thresholdInput = requiredElement<HTMLInputElement>("confidence-threshold");
 const processExistingInput = requiredElement<HTMLInputElement>("process-existing");
 const composerType = requiredElement<HTMLSelectElement>("new-rule-type");
@@ -455,15 +454,12 @@ function addRuleFromComposer(): void {
 
 function refreshDependentFolderSelects(): void {
   settings.inboxFolderId = inboxSelect.value;
-  const reviewId = reviewSelect.value;
-  populateFolderSelect(reviewSelect, reviewId, { excludeInbox: true });
   refreshComposerDestination();
   renderRules();
 }
 
 function captureUnsavedControls(): void {
   settings.inboxFolderId = inboxSelect.value;
-  settings.reviewFolderId = reviewSelect.value;
   settings.confidenceThreshold = Number(thresholdInput.value);
 }
 
@@ -473,9 +469,6 @@ async function refreshFolderChoices(showConfirmation = false): Promise<void> {
   folders = nextFolders;
   populateFolderSelect(inboxSelect, settings.inboxFolderId, {
     excludeInbox: false,
-  });
-  populateFolderSelect(reviewSelect, settings.reviewFolderId, {
-    excludeInbox: true,
   });
   refreshComposerDestination();
   renderRules();
@@ -503,14 +496,9 @@ function refreshIfFolder(nodeId: string): void {
 
 const issueMessageKeys: Record<ValidationIssueCode, string> = {
   inbox_required: "validationInboxRequired",
-  review_required: "validationReviewRequired",
   threshold_invalid: "validationThresholdInvalid",
-  same_inbox_and_review: "validationFoldersMustDiffer",
   inbox_missing: "validationInboxMissing",
-  review_missing: "validationReviewMissing",
   inbox_unwritable: "validationInboxUnwritable",
-  review_unwritable: "validationReviewUnwritable",
-  review_inside_inbox: "validationReviewInsideInbox",
   rule_pattern_required: "validationRulePatternRequired",
   rule_confidence_invalid: "validationRuleConfidenceInvalid",
   rule_destination_required: "validationRuleDestinationRequired",
@@ -523,11 +511,6 @@ const settingsControlsByIssue: Partial<Record<ValidationIssueCode, HTMLElement>>
   inbox_required: inboxSelect,
   inbox_missing: inboxSelect,
   inbox_unwritable: inboxSelect,
-  review_required: reviewSelect,
-  review_missing: reviewSelect,
-  review_unwritable: reviewSelect,
-  same_inbox_and_review: reviewSelect,
-  review_inside_inbox: reviewSelect,
   threshold_invalid: thresholdInput,
 };
 
@@ -569,7 +552,6 @@ async function save(event: SubmitEvent): Promise<void> {
   settings = {
     ...settings,
     inboxFolderId: inboxSelect.value,
-    reviewFolderId: reviewSelect.value,
     confidenceThreshold: Number(thresholdInput.value),
   };
 
@@ -593,6 +575,8 @@ function applyPrefilledRule(): void {
   if (!pattern) return;
   history.replaceState(null, "", location.pathname);
   setComposerPattern(domainFromUrl(pattern) ?? pattern);
+  // The suggestion comes from a bookmark left in the Inbox; sort it on save.
+  processExistingInput.checked = true;
   composerDestination.focus();
   showStatus(message("rulePrefilledMessage"));
 }
@@ -605,9 +589,6 @@ async function initialize(): Promise<void> {
   ]);
   populateFolderSelect(inboxSelect, settings.inboxFolderId, {
     excludeInbox: false,
-  });
-  populateFolderSelect(reviewSelect, settings.reviewFolderId, {
-    excludeInbox: true,
   });
   populateFolderSelect(composerDestination, "", { excludeInbox: true });
   populateMatchTypeSelect(composerType, MATCH_TYPES[0]!);
@@ -622,9 +603,6 @@ async function initialize(): Promise<void> {
     ruleDropped = true;
   });
   inboxSelect.addEventListener("change", refreshDependentFolderSelects);
-  reviewSelect.addEventListener("change", () => {
-    settings.reviewFolderId = reviewSelect.value;
-  });
   requiredElement("refresh-folders").addEventListener("click", () => {
     void refreshFolderChoices(true).catch(() => {
       showStatus(message("foldersRefreshError"), true);

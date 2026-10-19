@@ -25,7 +25,6 @@ function settings(rules: Rule[], threshold = 80): Settings {
   return {
     schemaVersion: 1,
     inboxFolderId: "inbox",
-    reviewFolderId: "review",
     confidenceThreshold: threshold,
     rules,
   };

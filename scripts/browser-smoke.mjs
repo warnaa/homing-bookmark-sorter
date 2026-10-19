@@ -106,7 +106,6 @@ try {
       title: "Homing browser smoke test",
     });
     const inbox = await chrome.bookmarks.create({ parentId: qaRoot.id, title: "Inbox" });
-    const review = await chrome.bookmarks.create({ parentId: qaRoot.id, title: "Needs review" });
     const development = await chrome.bookmarks.create({ parentId: qaRoot.id, title: "Development" });
     const manual = await chrome.bookmarks.create({ parentId: qaRoot.id, title: "Manual" });
 
@@ -114,7 +113,6 @@ try {
       settings: {
         schemaVersion: 1,
         inboxFolderId: inbox.id,
-        reviewFolderId: review.id,
         confidenceThreshold: 80,
         rules: [
           {
@@ -132,7 +130,6 @@ try {
     return {
       qaRoot: qaRoot.id,
       inbox: inbox.id,
-      review: review.id,
       development: development.id,
       manual: manual.id,
     };
@@ -175,12 +172,38 @@ try {
   );
   await waitForParent(matched.id, ids.development);
 
+  // The browser offers its most recently modified folder when saving a new
+  // bookmark, so after sorting the Inbox must be newer than the destination,
+  // with no temporary folders left behind.
+  let inboxIsDefault = false;
+  for (let attempt = 0; attempt < 60 && !inboxIsDefault; attempt += 1) {
+    inboxIsDefault = await worker.evaluate(async ({ inboxId, destinationId }) => {
+      const [inbox, destination] = await chrome.bookmarks.get([inboxId, destinationId]);
+      const children = await chrome.bookmarks.getChildren(inboxId);
+      return (
+        inbox.dateGroupModified > destination.dateGroupModified &&
+        children.every((node) => node.url)
+      );
+    }, { inboxId: ids.inbox, destinationId: ids.development });
+    if (!inboxIsDefault) await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  assert.equal(inboxIsDefault, true, "The Inbox was not the default save folder after sorting.");
+
   const unmatched = await createBookmark(
     ids.inbox,
     "Unmatched bookmark",
     "https://unmatched.invalid/article",
   );
-  await waitForParent(unmatched.id, ids.review);
+  let unsortedRecorded = false;
+  for (let attempt = 0; attempt < 60 && !unsortedRecorded; attempt += 1) {
+    unsortedRecorded = await worker.evaluate(async (id) => {
+      const { activity = [] } = await chrome.storage.local.get("activity");
+      return activity.some((entry) => entry.bookmarkId === id && entry.outcome === "unsorted");
+    }, unmatched.id);
+    if (!unsortedRecorded) await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  assert.equal(unsortedRecorded, true, "The unmatched bookmark was not recorded as unsorted.");
+  await waitForParent(unmatched.id, ids.inbox);
 
   const page = await browser.newPage();
   const pageErrors = [];
@@ -194,7 +217,7 @@ try {
   assert.equal(await page.$eval(".feedback-footer a", (element) => element.textContent), "Send feedback");
   await page.waitForSelector(".rule-row");
   assert.equal(await page.$eval("#inbox-folder", (element) => element.value), ids.inbox);
-  assert.equal(await page.$eval("#review-folder", (element) => element.value), ids.review);
+  assert.equal(await page.$("#review-folder"), null);
   assert.equal(await page.$$eval(".rule-row", (rows) => rows.length), 1);
   await page.setViewport({ width: 1280, height: 800 });
   await page.screenshot({ path: path.join(artifactsPath, "store-settings-en.png") });
@@ -208,7 +231,7 @@ try {
   ids.qaRoot);
   await page.waitForFunction(
     (folderId) =>
-      [...document.querySelectorAll("#review-folder option")].some(
+      [...document.querySelectorAll("#new-rule-destination option")].some(
         (option) => option.value === folderId,
       ),
     {},
@@ -219,7 +242,6 @@ try {
     "unsaved.example",
   );
   assert.equal(await page.$eval("#inbox-folder", (element) => element.value), ids.inbox);
-  assert.equal(await page.$eval("#review-folder", (element) => element.value), ids.review);
 
   // Quick add: type a value, keep the inferred match type, pick a folder, Enter.
   await page.type("#new-rule-pattern", "news.example");
@@ -327,11 +349,13 @@ try {
     "new-rule-destination",
   );
   assert.equal(await page.evaluate(() => location.search), "");
+  assert.equal(await page.$eval("#process-existing", (element) => element.checked), true);
 
   await page.goto(`chrome-extension://${extensionId}/popup.html`);
   assert.equal(await page.$eval(".feedback-footer a", (element) => element.getAttribute("href")), "mailto:damian@warna.pl?subject=Homing");
   await page.waitForSelector(".activity-item");
   assert.equal(await page.$$eval(".activity-item", (rows) => rows.length), 2);
+  assert.equal(await page.$$eval(".activity-item--unsorted", (rows) => rows.length), 1);
   assert.equal(
     await page.$$eval(".activity-item .text-button", (buttons) =>
       buttons.map((button) => button.textContent),

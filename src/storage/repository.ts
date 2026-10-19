@@ -37,15 +37,24 @@ export interface StateRepository {
   setImportInProgress(value: boolean): Promise<void>;
 }
 
-function migrateSettings(value: unknown): Settings {
+export function migrateSettings(value: unknown): Settings {
   if (!value || typeof value !== "object") return createDefaultSettings();
-  const candidate = value as Partial<Settings>;
+  const candidate: Partial<Settings> & { reviewFolderId?: unknown } = {
+    ...value,
+  };
+  // Settings saved before D-017 also carry a Needs review folder ID.
+  delete candidate.reviewFolderId;
   if (candidate.schemaVersion !== 1) return createDefaultSettings();
   return {
     ...createDefaultSettings(),
     ...candidate,
     rules: Array.isArray(candidate.rules) ? candidate.rules : [],
   };
+}
+
+// The Needs review folder no longer exists, so its old problems are moot.
+function isCurrentProblem(problem: ProblemRecord): boolean {
+  return (problem.code as string) !== "review_missing";
 }
 
 export class ChromeStateRepository implements StateRepository {
@@ -127,7 +136,9 @@ export class ChromeStateRepository implements StateRepository {
   async getProblems(): Promise<ProblemRecord[]> {
     const result = await chrome.storage.local.get(STORAGE_KEYS.problems);
     const value = result[STORAGE_KEYS.problems];
-    return Array.isArray(value) ? (value as ProblemRecord[]) : [];
+    return Array.isArray(value)
+      ? (value as ProblemRecord[]).filter(isCurrentProblem)
+      : [];
   }
 
   async addProblem(problem: ProblemRecord): Promise<void> {

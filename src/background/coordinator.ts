@@ -4,7 +4,6 @@ import {
   UNDO_WINDOW_MS,
   type ActivityRecord,
   type BookmarkSnapshot,
-  type PlannedOutcome,
   type ProblemRecord,
   type Settings,
   type WorkAttempt,
@@ -60,12 +59,14 @@ export class SortingCoordinator {
     await this.processAttempt(bookmark.id);
   }
 
-  handleMoved(bookmarkId: string, parentId: string): void {
+  handleMoved(bookmarkId: string, parentId: string, oldParentId?: string): void {
     const expectedParent = this.expectedMoves.get(bookmarkId);
     if (expectedParent === parentId) {
       this.expectedMoves.delete(bookmarkId);
       return;
     }
+    // Reordering within one folder is neither an arrival nor a new placement.
+    if (oldParentId === parentId) return;
 
     this.cancelled.add(bookmarkId);
     void this.reconcileExternalMove(bookmarkId, parentId);
@@ -78,9 +79,6 @@ export class SortingCoordinator {
     const settings = await this.repository.getSettings();
     if (nodeId === settings.inboxFolderId) {
       await this.addProblem({ code: "inbox_missing", folderId: nodeId });
-    }
-    if (nodeId === settings.reviewFolderId) {
-      await this.addProblem({ code: "review_missing", folderId: nodeId });
     }
     if (settings.rules.some((rule) => rule.destinationFolderId === nodeId)) {
       await this.addProblem({ code: "destination_missing", folderId: nodeId });
@@ -229,30 +227,10 @@ export class SortingCoordinator {
 
     const result = classifyBookmark(current, settings);
     if (result.kind === "match") {
-      const destination = await this.browser.getFolder(result.destinationFolderId);
-      if (!destination || destination.unmodifiable) {
-        await this.addProblem({
-          code: "destination_missing",
-          folderId: result.destinationFolderId,
-          bookmarkId: attempt.bookmarkId,
-        });
-        await this.planAndMove(
-          attempt,
-          settings,
-          settings.reviewFolderId,
-          "failed",
-          "destination_missing",
-          result.ruleId,
-          result.confidence,
-        );
-        return;
-      }
-
       await this.planAndMove(
         attempt,
         settings,
         result.destinationFolderId,
-        "moved",
         result.reasonCode,
         result.ruleId,
         result.confidence,
@@ -260,11 +238,9 @@ export class SortingCoordinator {
       return;
     }
 
-    await this.planAndMove(
+    await this.leaveInInbox(
       attempt,
-      settings,
-      settings.reviewFolderId,
-      "review",
+      "unsorted",
       result.reasonCode,
       result.ruleId,
       result.confidence,
@@ -275,19 +251,18 @@ export class SortingCoordinator {
     attempt: WorkAttempt,
     settings: Settings,
     targetFolderId: string,
-    outcome: PlannedOutcome,
     reasonCode: string,
-    ruleId?: string,
-    confidence?: number,
+    ruleId: string,
+    confidence: number,
   ): Promise<void> {
     const target = await this.browser.getFolder(targetFolderId);
     if (!target || target.unmodifiable) {
       await this.addProblem({
-        code: outcome === "moved" ? "destination_missing" : "review_missing",
+        code: "destination_missing",
         folderId: targetFolderId,
         bookmarkId: attempt.bookmarkId,
       });
-      await this.recordBlockedFailure(attempt, "review_missing");
+      await this.leaveInInbox(attempt, "failed", "destination_missing", ruleId);
       return;
     }
 
@@ -295,7 +270,7 @@ export class SortingCoordinator {
       ...attempt,
       state: "moving",
       targetFolderId,
-      plannedOutcome: outcome,
+      plannedOutcome: "moved",
       reasonCode,
       ruleId,
       confidence,
@@ -312,13 +287,10 @@ export class SortingCoordinator {
       return;
     }
 
-    await this.executeMove(movingAttempt, settings);
+    await this.executeMove(movingAttempt);
   }
 
-  private async executeMove(
-    attempt: WorkAttempt,
-    settings: Settings,
-  ): Promise<void> {
+  private async executeMove(attempt: WorkAttempt): Promise<void> {
     if (!attempt.targetFolderId || !attempt.plannedOutcome) return;
     this.expectedMoves.set(attempt.bookmarkId, attempt.targetFolderId);
 
@@ -332,26 +304,7 @@ export class SortingCoordinator {
         folderId: attempt.targetFolderId,
         bookmarkId: attempt.bookmarkId,
       });
-
-      if (
-        attempt.targetFolderId !== settings.reviewFolderId &&
-        settings.reviewFolderId
-      ) {
-        const fallback: WorkAttempt = {
-          ...attempt,
-          targetFolderId: settings.reviewFolderId,
-          plannedOutcome: "failed",
-          reasonCode: "move_failed",
-        };
-        await this.repository.putAttempt(fallback);
-        const review = await this.browser.getFolder(settings.reviewFolderId);
-        if (review && !review.unmodifiable) {
-          await this.executeMove(fallback, settings);
-          return;
-        }
-      }
-
-      await this.recordBlockedFailure(attempt, "move_failed");
+      await this.leaveInInbox(attempt, "failed", "move_failed", attempt.ruleId);
     }
   }
 
@@ -374,7 +327,7 @@ export class SortingCoordinator {
       return;
     }
 
-    await this.executeMove(attempt, settings);
+    await this.executeMove(attempt);
   }
 
   private async finalizeAttempt(attempt: WorkAttempt): Promise<void> {
@@ -390,13 +343,17 @@ export class SortingCoordinator {
       confidence: attempt.confidence,
       reasonCode: attempt.reasonCode ?? "completed",
       occurredAt: this.now(),
-      undoExpiresAt:
-        attempt.plannedOutcome === "moved"
-          ? this.now() + UNDO_WINDOW_MS
-          : undefined,
+      undoExpiresAt: this.now() + UNDO_WINDOW_MS,
     };
     await this.repository.addActivity(record);
     await this.repository.removeAttempt(attempt.bookmarkId);
+
+    // The move made the destination the browser's default folder for the next
+    // saved bookmark; offer the Inbox there again. This is best effort.
+    const { inboxFolderId } = await this.repository.getSettings();
+    if (inboxFolderId) {
+      await this.browser.markFolderModified(inboxFolderId).catch(() => undefined);
+    }
   }
 
   private async cancelAttempt(
@@ -429,25 +386,25 @@ export class SortingCoordinator {
       await this.repository.removeAttempt(attempt.bookmarkId);
       return;
     }
-    await this.planAndMove(
-      { ...attempt, state: "pending" },
-      settings,
-      settings.reviewFolderId,
-      "failed",
-      reasonCode,
-    );
+    await this.leaveInInbox(attempt, "failed", reasonCode);
   }
 
-  private async recordBlockedFailure(
+  /** Ends an attempt without moving the bookmark, so it waits in the Inbox. */
+  private async leaveInInbox(
     attempt: WorkAttempt,
+    outcome: "unsorted" | "failed",
     reasonCode: string,
+    ruleId?: string,
+    confidence?: number,
   ): Promise<void> {
     await this.repository.addActivity({
       id: this.createId(),
       bookmarkId: attempt.bookmarkId,
       bookmarkTitle: attempt.observedTitle,
-      outcome: "failed",
+      outcome,
       fromFolderId: attempt.observedParentId,
+      ruleId,
+      confidence,
       reasonCode,
       occurredAt: this.now(),
     });

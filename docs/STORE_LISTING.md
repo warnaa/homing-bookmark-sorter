@@ -15,10 +15,10 @@ Create simple rules based on domains, URLs, or words in bookmark titles, and
 choose where each rule sends them. Bookmarks saved anywhere else stay where
 you put them.
 
-- Choose your own Inbox, destinations, and Needs review folder.
+- Choose your own Inbox and destinations.
 - Match domains, subdomains, URL patterns, and title keywords.
 - Arrange rules in order: the first enabled match wins.
-- Send uncertain matches to Needs review.
+- Leave uncertain matches in the Inbox for you to sort.
 - See recent decisions and undo a successful automatic move within 10 minutes.
 - Keep newer manual moves authoritative.
 - Use the interface in English or Polish.
@@ -45,10 +45,10 @@ który wybierzesz. Twórz proste reguły na podstawie domen, adresów URL lub s�
 w tytułach zakładek i wybieraj folder docelowy dla każdej reguły. Zakładki
 zapisane w innych miejscach pozostają tam, gdzie je umieścisz.
 
-- Wybierz Skrzynkę, foldery docelowe i folder Do przejrzenia.
+- Wybierz Skrzynkę i foldery docelowe.
 - Dopasowuj domeny, subdomeny, wzorce adresów URL i słowa w tytułach.
 - Ustawiaj kolejność reguł: wygrywa pierwsza włączona pasująca reguła.
-- Kieruj niepewne dopasowania do folderu Do przejrzenia.
+- Zostawiaj niepewne dopasowania w Skrzynce do ręcznego posortowania.
 - Przeglądaj ostatnie decyzje i cofaj udane automatyczne przeniesienia przez 10 minut.
 - Zachowuj pierwszeństwo późniejszych ręcznych przeniesień.
 - Korzystaj z interfejsu po polsku lub angielsku.
@@ -85,11 +85,11 @@ Voluntary email feedback is composed and sent by the user's mail application.
 
 Test instructions (no login required):
 
-1. Create three writable bookmark folders: Inbox, Needs review, and Docs.
-2. Open Homing settings and select Inbox and Needs review.
+1. Create two writable bookmark folders: Inbox and Docs.
+2. Open Homing settings and select Inbox.
 3. Add an exact-domain rule for `example.com` with destination Docs; save.
 4. Add a bookmark for `https://example.com/` directly in Inbox: it moves to Docs.
-5. Add `https://unmatched.example/` directly in Inbox: it moves to Needs review.
+5. Add `https://unmatched.example/` directly in Inbox: it stays in Inbox.
 6. Open Homing's popup to inspect results and Undo the successful move.
 7. Save a bookmark in any other folder: Homing leaves it untouched.
 8. Select Send feedback: the link addresses a draft to damian@warna.pl; sending

@@ -48,8 +48,13 @@ class MemoryRepository implements StateRepository {
 class FakeBrowser implements BrowserGateway {
   nodes = new Map<string, BookmarkSnapshot>();
   moves: Array<{ id: string; parentId: string }> = [];
+  marked: string[] = [];
+  events: string[] = [];
   badge = "";
   getBookmarkHook?: (id: string, call: number) => void;
+  getFolderError?: Error;
+  moveError?: Error;
+  markError?: Error;
   private getCalls = 0;
 
   async getBookmark(id: string) {
@@ -58,6 +63,7 @@ class FakeBrowser implements BrowserGateway {
     return structuredClone(this.nodes.get(id));
   }
   async getFolder(id: string) {
+    if (this.getFolderError) throw this.getFolderError;
     const node = this.nodes.get(id);
     return node && !node.url ? structuredClone(node) : undefined;
   }
@@ -67,9 +73,16 @@ class FakeBrowser implements BrowserGateway {
   async moveBookmark(id: string, parentId: string) {
     const node = this.nodes.get(id);
     if (!node) throw new Error("missing");
+    if (this.moveError) throw this.moveError;
     node.parentId = parentId;
     this.moves.push({ id, parentId });
+    this.events.push(`move:${id}`);
     return structuredClone(node);
+  }
+  async markFolderModified(folderId: string) {
+    if (this.markError) throw this.markError;
+    this.marked.push(folderId);
+    this.events.push(`mark:${folderId}`);
   }
   async setBadge(text: string) { this.badge = text; }
 }
@@ -79,7 +92,6 @@ function fixture() {
   repository.settings = {
     schemaVersion: 1,
     inboxFolderId: "inbox",
-    reviewFolderId: "review",
     confidenceThreshold: 80,
     rules: [
       {
@@ -95,7 +107,6 @@ function fixture() {
   const browser = new FakeBrowser();
   browser.nodes.set("root", { id: "root", title: "root" });
   browser.nodes.set("inbox", { id: "inbox", parentId: "root", title: "Inbox" });
-  browser.nodes.set("review", { id: "review", parentId: "root", title: "Needs review" });
   browser.nodes.set("development", { id: "development", parentId: "root", title: "Development" });
   browser.nodes.set("manual", { id: "manual", parentId: "root", title: "Manual" });
   const bookmark: BookmarkSnapshot = {
@@ -130,18 +141,110 @@ describe("SortingCoordinator", () => {
     expect(repository.attempts.size).toBe(0);
   });
 
-  it("routes an unmatched bookmark to Needs review", async () => {
+  it("makes the Inbox the default save folder again after a move", async () => {
+    const { browser, coordinator, bookmark } = fixture();
+
+    await coordinator.handleArrival(bookmark);
+
+    expect(browser.events).toEqual(["move:bookmark", "mark:inbox"]);
+  });
+
+  it("keeps a completed move when the Inbox cannot be marked", async () => {
+    const { browser, repository, coordinator, bookmark } = fixture();
+    browser.markError = new Error("rejected");
+
+    await coordinator.handleArrival(bookmark);
+
+    expect(browser.moves).toEqual([{ id: "bookmark", parentId: "development" }]);
+    expect(repository.activity).toHaveLength(1);
+    expect(repository.activity[0]).toMatchObject({ outcome: "moved" });
+    expect(repository.problems).toEqual([]);
+  });
+
+  it("leaves an unmatched bookmark in the Inbox", async () => {
     const { browser, repository, coordinator, bookmark } = fixture();
     bookmark.url = "https://unmatched.test/article";
     browser.nodes.set(bookmark.id, bookmark);
 
     await coordinator.handleArrival(bookmark);
 
-    expect(browser.moves).toEqual([{ id: "bookmark", parentId: "review" }]);
+    expect(browser.moves).toEqual([]);
+    expect(browser.marked).toEqual([]);
+    expect(browser.nodes.get("bookmark")!.parentId).toBe("inbox");
     expect(repository.activity[0]).toMatchObject({
-      outcome: "review",
+      outcome: "unsorted",
+      fromFolderId: "inbox",
       reasonCode: "no_rule_match",
     });
+    expect(repository.activity[0]!.toFolderId).toBeUndefined();
+    expect(repository.attempts.size).toBe(0);
+    expect(repository.problems).toEqual([]);
+  });
+
+  it("leaves a below-threshold match in the Inbox and names the rule", async () => {
+    const { browser, repository, coordinator, bookmark } = fixture();
+    repository.settings.confidenceThreshold = 99;
+
+    await coordinator.handleArrival(bookmark);
+
+    expect(browser.moves).toEqual([]);
+    expect(repository.activity[0]).toMatchObject({
+      outcome: "unsorted",
+      reasonCode: "below_threshold",
+      ruleId: "development-rule",
+      confidence: 95,
+    });
+  });
+
+  it("leaves a bookmark in the Inbox when the browser rejects the move", async () => {
+    const { browser, repository, coordinator, bookmark } = fixture();
+    browser.moveError = new Error("rejected");
+
+    await coordinator.handleArrival(bookmark);
+
+    expect(browser.nodes.get("bookmark")!.parentId).toBe("inbox");
+    expect(browser.marked).toEqual([]);
+    expect(repository.activity[0]).toMatchObject({
+      outcome: "failed",
+      reasonCode: "move_failed",
+    });
+    expect(repository.problems[0]).toMatchObject({ code: "move_failed" });
+    expect(repository.attempts.size).toBe(0);
+    expect(browser.badge).toBe("1");
+  });
+
+  it("leaves a bookmark in the Inbox after a processing error", async () => {
+    const { browser, repository, coordinator, bookmark } = fixture();
+    browser.getFolderError = new Error("unexpected");
+
+    await coordinator.handleArrival(bookmark);
+
+    expect(browser.moves).toEqual([]);
+    expect(repository.activity[0]).toMatchObject({
+      outcome: "failed",
+      reasonCode: "processing_failed",
+    });
+    expect(repository.problems[0]).toMatchObject({ code: "processing_failed" });
+    expect(repository.attempts.size).toBe(0);
+  });
+
+  it("does not treat reordering inside the Inbox as an arrival", async () => {
+    const { browser, repository, coordinator } = fixture();
+
+    coordinator.handleMoved("bookmark", "inbox", "inbox");
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(browser.moves).toEqual([]);
+    expect(repository.activity).toEqual([]);
+  });
+
+  it("sorts a bookmark moved into the Inbox from another folder", async () => {
+    const { browser, coordinator } = fixture();
+
+    coordinator.handleMoved("bookmark", "inbox", "manual");
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(browser.moves).toEqual([{ id: "bookmark", parentId: "development" }]);
   });
 
   it("does not touch bookmarks outside the configured Inbox", async () => {
@@ -205,13 +308,14 @@ describe("SortingCoordinator", () => {
     expect(repository.attempts.size).toBe(0);
   });
 
-  it("routes a missing rule destination to Needs review and reports it", async () => {
+  it("leaves a bookmark in the Inbox when its rule destination is missing", async () => {
     const { browser, repository, coordinator, bookmark } = fixture();
     browser.nodes.delete("development");
 
     await coordinator.handleArrival(bookmark);
 
-    expect(browser.moves).toEqual([{ id: "bookmark", parentId: "review" }]);
+    expect(browser.moves).toEqual([]);
+    expect(browser.nodes.get("bookmark")!.parentId).toBe("inbox");
     expect(repository.activity[0]).toMatchObject({
       outcome: "failed",
       reasonCode: "destination_missing",
@@ -225,11 +329,11 @@ describe("SortingCoordinator", () => {
   it("reports deletion of a configured folder immediately", async () => {
     const { browser, repository, coordinator } = fixture();
 
-    await coordinator.handleRemoved("review");
+    await coordinator.handleRemoved("development");
 
     expect(repository.problems[0]).toMatchObject({
-      code: "review_missing",
-      folderId: "review",
+      code: "destination_missing",
+      folderId: "development",
     });
     expect(browser.badge).toBe("1");
   });

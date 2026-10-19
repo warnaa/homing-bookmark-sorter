@@ -93,3 +93,21 @@ outside version control.
   `powershell -NoProfile -File scripts/generate-store-art.ps1` and inspected.
 - Hosted GitHub Actions, developer registration, public privacy-policy hosting,
   store submission/review, and store installation/upgrades remain unverified.
+
+## Inbox-only sorting on 2026-10-19
+
+- `npm run check` passed: strict types, ESLint, 48 tests in ten files, build,
+  and validation of 25 packaged files with English/Polish locales.
+- `npm run test:browser` passed in Google Chrome 155.0.8059.84, and the same
+  smoke script passed in Microsoft Edge 155.0.4283.45. Both used isolated
+  temporary profiles. New assertions cover an unmatched bookmark staying in
+  the Inbox and being recorded as unsorted, the absence of a Needs review
+  selector, the preselected sort-existing option after a rule suggestion, and
+  the Inbox having a newer `dateGroupModified` than the destination after a
+  sort, with no temporary folders left behind.
+- With the Inbox marking disabled in the built extension, the smoke test failed
+  on that `dateGroupModified` assertion. The destination stayed the most
+  recently modified folder, which confirms the cause.
+- Chromium's bookmark dialog itself was not driven. That it proposes the most
+  recently modified folder is taken from Chromium's `GetParentForNewNodes`
+  source. Edge's dialog was assumed to behave the same and was not checked.

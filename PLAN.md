@@ -152,3 +152,11 @@ are prepared. First publication remains pending developer-account registration,
 listing setup, public privacy-policy hosting, store imagery, and Google review.
 Live API submission and hosted GitHub workflow execution require account setup
 and are not covered by local automated tests.
+
+## Inbox-only follow-up
+
+Requested on 2026-10-19: leave bookmarks that cannot be sorted in the Inbox
+instead of a Needs review folder (D-017), and keep the Inbox as the browser's
+default save folder after sorting (D-018). The Needs review folder, its
+settings, validation, and problems are removed. Earlier phase descriptions
+that mention Needs review describe the original MVP.

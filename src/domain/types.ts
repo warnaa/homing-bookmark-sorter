@@ -20,7 +20,6 @@ export interface Rule {
 export interface Settings {
   schemaVersion: typeof SETTINGS_SCHEMA_VERSION;
   inboxFolderId: string;
-  reviewFolderId: string;
   confidenceThreshold: number;
   rules: Rule[];
 }
@@ -62,7 +61,7 @@ export interface UnresolvedClassification {
 export type ClassificationResult = RuleMatch | UnresolvedClassification;
 
 export type AttemptState = "pending" | "moving";
-export type PlannedOutcome = "moved" | "review" | "failed";
+export type PlannedOutcome = "moved";
 
 export interface WorkAttempt {
   bookmarkId: string;
@@ -81,6 +80,8 @@ export interface WorkAttempt {
 
 export type ActivityOutcome =
   | "moved"
+  | "unsorted"
+  // Recorded before D-017, when unsorted bookmarks moved to Needs review.
   | "review"
   | "failed"
   | "cancelled";
@@ -104,7 +105,6 @@ export interface ProblemRecord {
   id: string;
   code:
     | "inbox_missing"
-    | "review_missing"
     | "destination_missing"
     | "move_failed"
     | "processing_failed";
@@ -130,14 +130,9 @@ export interface PersistedState {
 
 export type ValidationIssueCode =
   | "inbox_required"
-  | "review_required"
   | "threshold_invalid"
-  | "same_inbox_and_review"
   | "inbox_missing"
-  | "review_missing"
   | "inbox_unwritable"
-  | "review_unwritable"
-  | "review_inside_inbox"
   | "rule_pattern_required"
   | "rule_confidence_invalid"
   | "rule_destination_required"
@@ -154,7 +149,6 @@ export function createDefaultSettings(): Settings {
   return {
     schemaVersion: SETTINGS_SCHEMA_VERSION,
     inboxFolderId: "",
-    reviewFolderId: "",
     confidenceThreshold: 80,
     rules: [],
   };

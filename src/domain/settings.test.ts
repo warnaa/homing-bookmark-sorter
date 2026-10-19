@@ -6,7 +6,6 @@ const folderList: FolderSnapshot[] = [
   { id: "root", title: "root" },
   { id: "inbox", parentId: "root", title: "Inbox" },
   { id: "inbox-child", parentId: "inbox", title: "Inside" },
-  { id: "review", parentId: "root", title: "Needs review" },
   { id: "destination", parentId: "root", title: "Development" },
   { id: "managed", parentId: "root", title: "Managed", unmodifiable: "managed" },
 ];
@@ -16,7 +15,6 @@ function validSettings(): Settings {
   return {
     schemaVersion: 1,
     inboxFolderId: "inbox",
-    reviewFolderId: "review",
     confidenceThreshold: 80,
     rules: [
       {
@@ -43,14 +41,21 @@ describe("validateSettings", () => {
     expect(validateSettings(validSettings(), folders)).toEqual([]);
   });
 
-  it("rejects review and destination folders inside the Inbox", () => {
+  it("rejects destinations inside the Inbox", () => {
     const settings = validSettings();
-    settings.reviewFolderId = "inbox-child";
     settings.rules[0]!.destinationFolderId = "inbox-child";
 
     expect(validateSettings(settings, folders).map(({ code }) => code)).toEqual([
-      "review_inside_inbox",
       "rule_destination_inside_inbox",
+    ]);
+  });
+
+  it("needs only an Inbox, not a Needs review folder", () => {
+    const settings = validSettings();
+    settings.inboxFolderId = "";
+
+    expect(validateSettings(settings, folders).map(({ code }) => code)).toEqual([
+      "inbox_required",
     ]);
   });
 
