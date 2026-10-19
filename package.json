@@ -1,6 +1,6 @@
 {
   "name": "homing",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "A trustworthy bookmark-inbox sorter for Chromium browsers.",
   "type": "module",
